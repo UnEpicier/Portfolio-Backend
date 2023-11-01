@@ -25,7 +25,7 @@ export async function checkToken(token: string) {
 	return await verifyToken(token);
 }
 
-export async function signUserIn(email: string, password: string) {
+export async function signInUser(email: string, password: string) {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
@@ -65,5 +65,28 @@ export async function signUserIn(email: string, password: string) {
 	return {
 		message: 'Successfuly logged in',
 		token: newToken.token,
+	};
+}
+
+export async function signOutUser(token: string) {
+	const dbConn = new Sequelize({
+		dialect: 'sqlite',
+		storage: `${process.cwd()}/databases/general.db`,
+		logging: false,
+	});
+	const tokenModel = defineModelToken(dbConn);
+
+	try {
+		await tokenModel.destroy({
+			where: { token },
+		});
+	} catch (error) {
+		return {
+			success: false,
+		};
+	}
+
+	return {
+		success: true,
 	};
 }

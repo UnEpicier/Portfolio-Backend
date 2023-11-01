@@ -7,7 +7,7 @@ import { Router } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Services -------------------------------------------------------
-import { getToken, signIn } from './auth.services';
+import { getToken, signIn, signOut } from './auth.services';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
@@ -18,6 +18,10 @@ router.get('/auth', async (req, res) => {
 
 router.post('/auth/signin', async (req, res) => {
 	await signIn(req, res);
+});
+
+router.delete('/auth/signout', async (req, res) => {
+	await signOut(req, res);
 });
 
 export default router;
