@@ -22,10 +22,16 @@ console.log(`App name: ${pck.name}`);
 console.log(`App version: ${pck.version}`);
 // ---------------------------------------------------------------------------------------------------------------------
 
+// ----------------------------------------------------- Routers -------------------------------------------------------
+import auth from './auth/auth.routes';
+// ---------------------------------------------------------------------------------------------------------------------
+
 const app = express();
 app.use(cors());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(express.json());
+
+app.use('/', auth);
 
 app.listen(process.env.PORT ?? 3000, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
