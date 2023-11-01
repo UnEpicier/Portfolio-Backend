@@ -14,21 +14,20 @@ import {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Create/Update the token table
-const dbConn = new Sequelize({
-	dialect: 'sqlite',
-	storage: `${process.cwd()}/databases/general.db`,
-	logging: false,
-});
-const model = defineModelToken(dbConn);
-model.sync({ alter: true });
-
-console.log('Token table created/updated.');
+// const dbConn = new Sequelize({
+// 	dialect: 'sqlite',
+// 	storage: `${process.cwd()}/databases/general.db`,
+// 	logging: false,
+// });
+// const model = defineModelToken(dbConn);
+// model.sync({ alter: true });
 
 class Token extends Model<
 	InferAttributes<Token>,
 	InferCreationAttributes<Token>
 > {
 	declare token: string;
+	declare userId: number;
 	declare createdAt: CreationOptional<Date>;
 }
 
@@ -41,10 +40,17 @@ export function defineModelToken(db: Sequelize) {
 				allowNull: false,
 				unique: true,
 			},
-			createdAt: {
-				type: DataTypes.DATE,
+			userId: {
+				type: DataTypes.INTEGER,
 				allowNull: false,
-				defaultValue: new Date(),
+				references: {
+					model: 'users',
+					key: 'id',
+				},
+			},
+			createdAt: {
+				type: DataTypes.TEXT,
+				defaultValue: new Date().toISOString(),
 			},
 		},
 		{

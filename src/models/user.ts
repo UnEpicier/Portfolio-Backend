@@ -3,11 +3,34 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import { Sequelize, DataTypes } from 'sequelize';
+import {
+	Sequelize,
+	DataTypes,
+	Model,
+	InferAttributes,
+	InferCreationAttributes,
+	CreationOptional,
+} from 'sequelize';
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Create/Update the token table
+// const dbConn = new Sequelize({
+// 	dialect: 'sqlite',
+// 	storage: `${process.cwd()}/databases/general.db`,
+// 	logging: false,
+// });
+// const model = defineModelUser(dbConn);
+// model.sync({ alter: true });
+
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+	declare id: CreationOptional<number>;
+	declare name: string;
+	declare email: string;
+	declare password: string;
+}
+
 export function defineModelUser(db: Sequelize) {
-	return db.define('user', {
+	return db.define<User>('user', {
 		id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
@@ -26,11 +49,6 @@ export function defineModelUser(db: Sequelize) {
 		password: {
 			type: DataTypes.TEXT,
 			allowNull: false,
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			allowNull: false,
-			defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
 		},
 	});
 }

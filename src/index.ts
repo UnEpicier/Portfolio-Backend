@@ -9,6 +9,7 @@ import express from 'express';
 // --------------------------------------------------- Middleware ------------------------------------------------------
 import cors from 'cors';
 import morgan from 'morgan';
+import bodyParser from 'body-parser';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------- DotEnv --------------------------------------------------------
@@ -29,7 +30,12 @@ import auth from './auth/auth.routes';
 const app = express();
 app.use(cors());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
-app.use(express.json());
+app.use(
+	bodyParser.urlencoded({
+		extended: true,
+	}),
+);
+app.use(bodyParser.json());
 
 app.use('/', auth);
 

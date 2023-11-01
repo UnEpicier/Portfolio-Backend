@@ -7,13 +7,17 @@ import { Router } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Services -------------------------------------------------------
-import { getToken } from './auth.services';
+import { getToken, signIn } from './auth.services';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
 
 router.get('/auth', async (req, res) => {
 	await getToken(req, res);
+});
+
+router.post('/auth/signin', async (req, res) => {
+	await signIn(req, res);
 });
 
 export default router;

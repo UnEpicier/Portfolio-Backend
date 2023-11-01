@@ -7,42 +7,63 @@ import dotenv from 'dotenv';
 dotenv.config();
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ---------------------------------------------------- Sequelize ------------------------------------------------------
+// ----------------------------------------------- Sequelize & Models --------------------------------------------------
 import { Sequelize } from 'sequelize';
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------------- Models --------------------------------------------------------
 import { defineModelToken } from '../models/token';
+import { defineModelUser } from '../models/user';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function verifyToken(token: string) {
+// ----------------------------------------------------- Crypto --------------------------------------------------------
+import bcrypt from 'bcrypt';
+// ---------------------------------------------------------------------------------------------------------------------
+
+// ------------------------------------------------------ Utils --------------------------------------------------------
+import { verifyToken, generateToken } from '../utils/auth';
+// ---------------------------------------------------------------------------------------------------------------------
+
+export async function checkToken(token: string) {
+	return await verifyToken(token);
+}
+
+export async function signUserIn(email: string, password: string) {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
 		logging: false,
 	});
-	const Model = defineModelToken(dbConn);
+	const userModel = defineModelUser(dbConn);
+	const tokenModel = defineModelToken(dbConn);
 
-	const dbToken = await Model.findOne({
-		where: { token },
-		raw: true,
-		attributes: ['token', 'createdAt'],
+	const dbUser = await userModel.findOne({
+		where: { email },
+		attributes: ['id', 'password'],
 	});
 
-	if (!dbToken) {
-		return false;
+	if (!dbUser) {
+		return {
+			error: true,
+			code: 1,
+			message: "Can't find email",
+		};
 	}
 
-	const diff = new Date().getTime() - new Date(dbToken.createdAt).getTime();
-	const seconds = Math.floor(diff / 1000);
-	const tokenExpiration = parseInt(process.env.TOKEN_EXPIRATION || '3600'); // 3600 = 1 hour
-	if (seconds > tokenExpiration) {
-		await Model.destroy({
-			where: { token },
-			force: true,
-		});
-		return false;
+	if (!bcrypt.compareSync(password, dbUser.password)) {
+		return {
+			error: true,
+			code: 2,
+			message: 'Wrong password',
+		};
 	}
 
-	return true;
+	const token = generateToken();
+
+	const newToken = await tokenModel.create({
+		token: token,
+		userId: dbUser.id,
+	});
+
+	return {
+		message: 'Successfuly logged in',
+		token: newToken.token,
+	};
 }

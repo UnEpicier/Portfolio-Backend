@@ -7,7 +7,11 @@ import { Request, Response } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // --------------------------------------------------- Controllers -----------------------------------------------------
-import { verifyToken } from './auth.controllers';
+import { checkToken, signUserIn } from './auth.controllers';
+// ---------------------------------------------------------------------------------------------------------------------
+
+// ------------------------------------------------------ Utils --------------------------------------------------------
+import { verifyToken } from '../utils/auth';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function getToken(req: Request, res: Response) {
@@ -19,10 +23,37 @@ export async function getToken(req: Request, res: Response) {
 
 	let tokenExists;
 	try {
-		tokenExists = await verifyToken(token);
+		tokenExists = await checkToken(token);
 	} catch (error) {
 		return res.status(500).json({ error });
 	}
 
 	return res.status(200).json({ tokenExists });
+}
+
+export async function signIn(req: Request, res: Response) {
+	const token = req.headers.authorization;
+	const email = req.body.email;
+	const password = req.body.password;
+
+	if (!email || !password) {
+		return res.status(400).json({
+			error: true,
+			message: 'Email or password field missing in body',
+		});
+	}
+
+	if (token && (await verifyToken(token))) {
+		return res.status(200).json({ message: 'Already logged in' });
+	}
+
+	const signedIn = await signUserIn(email, password);
+
+	if (signedIn.error) {
+		const httpCode =
+			signedIn.code == 1 ? 404 : signedIn.code == 2 ? 200 : 500;
+		return res.status(httpCode).json(signedIn);
+	}
+
+	return res.status(200).json(signedIn);
 }
