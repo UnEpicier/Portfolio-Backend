@@ -13,11 +13,7 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"outDir": "./dist",
-		"strictPropertyInitialization": false,
-		"paths": {
-			"Root": ["./*"],
-			"Src": ["./src/*"]
-		}
+		"strictPropertyInitialization": false
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist"],
