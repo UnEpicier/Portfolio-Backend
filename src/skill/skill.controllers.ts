@@ -106,3 +106,44 @@ export async function updateDbSkill(oldName: string, name: string) {
 		message: `Successfully renamed ${oldName} to ${name}`,
 	};
 }
+
+export async function deleteDbSkill(name: string) {
+	const dbConn = new Sequelize({
+		dialect: 'sqlite',
+		storage: `${process.cwd()}/databases/general.db`,
+		logging: false,
+	});
+
+	const skillModel = defineModelSkill(dbConn);
+
+	const skillFounded = await skillModel.findOne({
+		where: {
+			name: name,
+		},
+	});
+
+	if (!skillFounded) {
+		return {
+			success: false,
+			message: `Can't find skill named ${name}.`,
+		};
+	}
+
+	try {
+		await skillModel.destroy({
+			where: {
+				name: name,
+			},
+		});
+	} catch {
+		return {
+			success: false,
+			message: `Can't delete ${name} skill.`,
+		};
+	}
+
+	return {
+		success: true,
+		message: `Successfully deleted ${name} skill.`,
+	};
+}
