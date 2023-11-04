@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // --------------------------------------------------- Controllers -----------------------------------------------------
-import { createDbSkill, getDbSkills } from './skill.controllers';
+import { createDbSkill, getDbSkills, updateDbSkill } from './skill.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------ Utils --------------------------------------------------------
@@ -50,6 +50,34 @@ export async function createSkill(req: Request, res: Response) {
 	return res.status(skillCreated.success ? 200 : 500).json(skillCreated);
 }
 
-export async function updateSkill(req: Request, res: Response) {}
+export async function updateSkill(req: Request, res: Response) {
+	const token = req.headers.authorization;
+	const { oldName, name } = req.body;
+
+	if (!token) {
+		return res.status(401).json({
+			success: false,
+			message: 'A valid token is required to rename a skill.',
+		});
+	}
+
+	if (!(await verifyToken(token))) {
+		return res.status(404).json({
+			success: false,
+			message: 'Provided token not found.',
+		});
+	}
+
+	if (!oldName || !name) {
+		return res.status(400).json({
+			success: false,
+			message: 'Either name or oldName field is missing in request body.',
+		});
+	}
+
+	const skillUpdated = await updateDbSkill(oldName, name);
+
+	return res.status(skillUpdated.success ? 200 : 500).json(skillUpdated);
+}
 
 export async function deleteSkill(req: Request, res: Response) {}
