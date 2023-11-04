@@ -72,7 +72,7 @@ export async function signInUser(email: string, password: string) {
 
 	return {
 		success: true,
-		message: 'Successfuly logged in.',
+		message: 'Successfully logged in.',
 		token: token,
 	};
 }
@@ -98,7 +98,7 @@ export async function signOutUser(token: string) {
 
 	return {
 		success: true,
-		message: 'Successfuly signed out.',
+		message: 'Successfully signed out.',
 	};
 }
 
@@ -129,7 +129,7 @@ export async function createAccount(
 
 	return {
 		success: true,
-		message: `Successfuly created an account for ${name}`,
+		message: `Successfully created an account for ${name}`,
 	};
 }
 
@@ -190,7 +190,7 @@ export async function deleteUserAccount(name: string, email: string) {
 
 	return {
 		success: true,
-		message: `Successfuly deleted account of ${name}`,
+		message: `Successfully deleted account of ${name}`,
 	};
 }
 
@@ -278,7 +278,7 @@ export async function changeUserPassword(
 
 	return {
 		success: true,
-		message: 'Successfuly changed the password.',
+		message: 'Successfully changed the password.',
 	};
 }
 
@@ -376,6 +376,6 @@ export async function changeUserEmail(
 
 	return {
 		success: true,
-		message: 'Successfuly changed the email.',
+		message: 'Successfully changed the email.',
 	};
 }
