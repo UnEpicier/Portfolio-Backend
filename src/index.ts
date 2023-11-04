@@ -27,6 +27,7 @@ console.log(`App version: ${pck.version}`);
 import auth from './auth/auth.routes';
 import skill from './skill/skill.routes';
 import link from './link/link.routes';
+import message from './message/message.routes';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const app = express();
@@ -42,6 +43,7 @@ app.use(bodyParser.json());
 app.use('/', auth);
 app.use('/', skill);
 app.use('/', link);
+app.use('/', message);
 
 app.listen(process.env.PORT ?? 3000, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
