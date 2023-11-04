@@ -3,10 +3,17 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import { Sequelize, DataTypes } from 'sequelize';
+import {
+	Sequelize,
+	DataTypes,
+	Model,
+	InferAttributes,
+	InferCreationAttributes,
+	CreationOptional,
+} from 'sequelize';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Create/Update the skils table
+// Create/Update the skills table
 // const dbConn = new Sequelize({
 // 	dialect: 'sqlite',
 // 	storage: `${process.cwd()}/databases/general.db`,
@@ -15,8 +22,16 @@ import { Sequelize, DataTypes } from 'sequelize';
 // const model = defineModelSkill(dbConn);
 // model.sync({ alter: true });
 
+class Skill extends Model<
+	InferAttributes<Skill>,
+	InferCreationAttributes<Skill>
+> {
+	declare id: CreationOptional<number>;
+	declare name: string;
+}
+
 export function defineModelSkill(db: Sequelize) {
-	return db.define('skill', {
+	return db.define<Skill>('skill', {
 		id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,

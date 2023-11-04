@@ -7,143 +7,161 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelSkill } from '../models/skill';
+import { Op, Sequelize } from 'sequelize';
+import { defineModelLink } from 'src/models/link';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function getDbSkills() {
+export async function dbGetLinks() {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
 		logging: false,
 	});
-	const skillModel = defineModelSkill(dbConn);
+	const linkModel = defineModelLink(dbConn);
 
-	const dbSkills = await skillModel.findAll();
+	const dbLinks = await linkModel.findAll();
 
-	if (!dbSkills) {
+	if (!dbLinks) {
 		return {
 			success: false,
-			message: "Can't find skills in database.",
+			message: "Can't get links.",
 		};
 	}
 
 	return {
 		success: true,
-		message: 'Successfully getted skills',
-		skills: dbSkills,
+		message: 'Successfully getted links',
+		links: dbLinks,
 	};
 }
 
-export async function createDbSkill(name: string) {
+export async function dbCreateLink(
+	name: string,
+	icon: string,
+	color: string,
+	link: string,
+) {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
 		logging: false,
 	});
-
-	const skillModel = defineModelSkill(dbConn);
+	const linkModel = defineModelLink(dbConn);
 
 	try {
-		await skillModel.create({
+		await linkModel.create({
 			name: name,
+			icon: icon,
+			color: color,
+			link: link,
 		});
 	} catch {
 		return {
 			success: false,
-			message: `Can't create ${name} skill.`,
+			message: `Can't create ${name} link.`,
 		};
 	}
 
 	return {
 		success: true,
-		message: `Successfully created ${name} skill.`,
+		message: `Successfully created ${name} link.`,
 	};
 }
 
-export async function updateDbSkill(oldName: string, name: string) {
+export async function dbUpdateLink(
+	name: string,
+	icon: string,
+	color: string,
+	link: string,
+) {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
 		logging: false,
 	});
+	const linkModel = defineModelLink(dbConn);
 
-	const skillModel = defineModelSkill(dbConn);
-
-	const skillFound = await skillModel.findOne({
+	const dbLink = await linkModel.findOne({
 		where: {
-			name: oldName,
+			[Op.or]: [
+				{ name: name },
+				{ icon: icon },
+				{ color: color },
+				{ link: link },
+			],
 		},
 	});
 
-	if (!skillFound) {
+	if (!dbLink) {
 		return {
 			success: false,
-			message: `Can't find skill named ${oldName}.`,
+			message: `Can't find the link.`,
+		};
+	}
+
+	if (
+		name == dbLink.name &&
+		icon == dbLink.icon &&
+		color == dbLink.color &&
+		link == dbLink.link
+	) {
+		return {
+			success: false,
+			message:
+				'Requested update parameters are the same as the actual values.',
 		};
 	}
 
 	try {
-		await skillModel.update(
+		await linkModel.update(
 			{
 				name: name,
+				icon: icon,
+				color: color,
+				link: link,
 			},
 			{
 				where: {
-					name: oldName,
+					id: dbLink.id,
 				},
 			},
 		);
 	} catch {
 		return {
 			success: false,
-			message: `Can't rename ${oldName} to ${name}.`,
+			message: `Can't update the link.`,
 		};
 	}
 
 	return {
 		success: true,
-		message: `Successfully renamed ${oldName} to ${name}`,
+		message: `Successfuly updated ${name} link.`,
 	};
 }
 
-export async function deleteDbSkill(name: string) {
+export async function dbDeleteLink(id: number) {
 	const dbConn = new Sequelize({
 		dialect: 'sqlite',
 		storage: `${process.cwd()}/databases/general.db`,
 		logging: false,
 	});
-
-	const skillModel = defineModelSkill(dbConn);
-
-	const skillFounded = await skillModel.findOne({
-		where: {
-			name: name,
-		},
-	});
-
-	if (!skillFounded) {
-		return {
-			success: false,
-			message: `Can't find skill named ${name}.`,
-		};
-	}
+	const linkModel = defineModelLink(dbConn);
 
 	try {
-		await skillModel.destroy({
+		await linkModel.destroy({
 			where: {
-				name: name,
+				id: id,
 			},
 		});
 	} catch {
 		return {
 			success: false,
-			message: `Can't delete ${name} skill.`,
+			message: "Can't delete link.",
 		};
 	}
 
 	return {
 		success: true,
-		message: `Successfully deleted ${name} skill.`,
+		message: 'Successfully deleted link.',
 	};
 }
