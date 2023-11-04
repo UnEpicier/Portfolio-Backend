@@ -13,7 +13,7 @@ import {
 } from 'sequelize';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Create/Update the token table
+// Create/Update the user table
 // const dbConn = new Sequelize({
 // 	dialect: 'sqlite',
 // 	storage: `${process.cwd()}/databases/general.db`,
