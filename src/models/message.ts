@@ -14,13 +14,13 @@ import {
 // ---------------------------------------------------------------------------------------------------------------------
 
 // Create/Update the links table
-const dbConn = new Sequelize({
-	dialect: 'sqlite',
-	storage: `${process.cwd()}/databases/general.db`,
-	logging: false,
-});
-const model = defineModelMessage(dbConn);
-model.sync({ alter: true });
+// const dbConn = new Sequelize({
+// 	dialect: 'sqlite',
+// 	storage: `${process.cwd()}/databases/general.db`,
+// 	logging: false,
+// });
+// const model = defineModelMessage(dbConn);
+// model.sync({ alter: true });
 
 class Message extends Model<
 	InferAttributes<Message>,
