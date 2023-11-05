@@ -28,6 +28,7 @@ import auth from './auth/auth.routes';
 import skill from './skill/skill.routes';
 import link from './link/link.routes';
 import message from './message/message.routes';
+import project from './project/project.routes';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/', auth);
 app.use('/', skill);
 app.use('/', link);
 app.use('/', message);
+app.use('/', project);
 
 app.listen(process.env.PORT ?? 3000, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
