@@ -31,6 +31,7 @@ import message from './message/message.routes';
 import project from './project/project.routes';
 import about from './about/about.routes';
 import experience from './experience/experience.routes';
+import formation from './formation/formation.routes';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/', message);
 app.use('/', project);
 app.use('/', about);
 app.use('/', experience);
+app.use('/', formation);
 
 app.listen(process.env.PORT ?? 3000, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
