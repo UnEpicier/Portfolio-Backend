@@ -3,20 +3,44 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import { Sequelize, DataTypes } from 'sequelize';
+import {
+	Sequelize,
+	DataTypes,
+	Model,
+	InferAttributes,
+	InferCreationAttributes,
+	CreationOptional,
+} from 'sequelize';
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Create/Update the links table
+const dbConn = new Sequelize({
+	dialect: 'sqlite',
+	storage: `${process.cwd()}/databases/general.db`,
+	logging: false,
+});
+const model = defineModelExperience(dbConn);
+model.sync({ alter: true });
+
+class Experience extends Model<
+	InferAttributes<Experience>,
+	InferCreationAttributes<Experience>
+> {
+	declare id: CreationOptional<number>;
+	declare header: string;
+	declare society: string;
+	declare startedYear: string;
+	declare endedYear: string;
+	declare content: string;
+}
+
 export function defineModelExperience(db: Sequelize) {
-	return db.define('experience', {
+	return db.define<Experience>('experience', {
 		id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-		},
-		image: {
-			type: DataTypes.TEXT,
-			allowNull: false,
 		},
 		header: {
 			type: DataTypes.TEXT,
