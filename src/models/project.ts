@@ -3,21 +3,67 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import { Sequelize, DataTypes } from 'sequelize';
+import {
+	Sequelize,
+	DataTypes,
+	Model,
+	InferAttributes,
+	InferCreationAttributes,
+	CreationOptional,
+} from 'sequelize';
 // ---------------------------------------------------------------------------------------------------------------------
 
+// Create/Update the links table
+const dbConn = new Sequelize({
+	dialect: 'sqlite',
+	storage: `${process.cwd()}/databases/general.db`,
+	logging: false,
+});
+const model = defineModelProject(dbConn);
+model.sync({ alter: true });
+
+class Project extends Model<
+	InferAttributes<Project>,
+	InferCreationAttributes<Project>
+> {
+	declare id: CreationOptional<number>;
+	declare ownerName: string;
+	declare ownerImage: string;
+	declare ownerUrl: string;
+	declare name: string;
+	declare description: string;
+	declare stars: number;
+	declare forks: number;
+	declare topics: string;
+	declare license: string | null;
+	declare link: string;
+	declare createdAt: string;
+	declare updatedAt: string;
+}
+
 export function defineModelProject(db: Sequelize) {
-	return db.define('project', {
+	return db.define<Project>('project', {
 		id: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
 		},
+		ownerName: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+		},
+		ownerImage: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+		},
+		ownerUrl: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+		},
 		name: {
 			type: DataTypes.TEXT,
 			allowNull: false,
-			unique: true,
 		},
 		description: {
 			type: DataTypes.TEXT,
@@ -34,7 +80,7 @@ export function defineModelProject(db: Sequelize) {
 			allowNull: false,
 			defaultValue: 0,
 		},
-		tags: {
+		topics: {
 			type: DataTypes.TEXT,
 			allowNull: false,
 			defaultValue: '[]',
@@ -48,6 +94,14 @@ export function defineModelProject(db: Sequelize) {
 			type: DataTypes.TEXT,
 			allowNull: false,
 			unique: true,
+		},
+		createdAt: {
+			type: DataTypes.DATE,
+			allowNull: false,
+		},
+		updatedAt: {
+			type: DataTypes.DATE,
+			allowNull: false,
 		},
 	});
 }
