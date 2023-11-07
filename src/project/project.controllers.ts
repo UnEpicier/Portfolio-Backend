@@ -33,10 +33,17 @@ export async function dbGetProjects() {
 		};
 	}
 
+	const projects: any[] = [...dbProjects];
+
+	for (let i = 0; i < projects.length; i++) {
+		const topics = projects[i].topics;
+		projects[i].topics = topics.split(',') || [];
+	}
+
 	return {
 		success: true,
 		message: 'Successfully getted projects.',
-		projects: dbProjects,
+		projects: projects,
 	};
 }
 
