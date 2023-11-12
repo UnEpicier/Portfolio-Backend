@@ -31,7 +31,7 @@ export async function dbGetMessages() {
 	return {
 		success: true,
 		message: 'successfully getted messages.',
-		links: dbMessages,
+		messages: dbMessages,
 	};
 }
 
