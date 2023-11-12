@@ -21,19 +21,19 @@ export async function dbGetFormations() {
 
 	const formationModel = defineModelFormation(dbConn);
 
-	const dbExperiences = await formationModel.findAll();
+	const dbFormations = await formationModel.findAll();
 
-	if (!dbExperiences) {
+	if (!dbFormations) {
 		return {
 			success: false,
-			message: "Can't get experiences.",
+			message: "Can't get formations.",
 		};
 	}
 
 	return {
 		success: true,
-		message: 'Successfully getted experiences.',
-		experiences: dbExperiences,
+		message: 'Successfully getted formations.',
+		formations: dbFormations,
 	};
 }
 
@@ -63,13 +63,13 @@ export async function dbPostFormation(
 	} catch {
 		return {
 			success: false,
-			message: "Can't create experience.",
+			message: "Can't create formation.",
 		};
 	}
 
 	return {
 		success: true,
-		message: 'Successfully created experience.',
+		message: 'Successfully created formation.',
 	};
 }
 
@@ -107,13 +107,13 @@ export async function dbUpdateFormation(
 	} catch {
 		return {
 			success: false,
-			message: "Can't update experience.",
+			message: "Can't update formation.",
 		};
 	}
 
 	return {
 		success: true,
-		message: 'Successfully updated experience.',
+		message: 'Successfully updated formation.',
 	};
 }
 
@@ -135,12 +135,12 @@ export async function dbDeleteFormation(id: number) {
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete experience.",
+			message: "Can't delete formation.",
 		};
 	}
 
 	return {
 		success: true,
-		message: 'Successfully deleted experience.',
+		message: 'Successfully deleted formation.',
 	};
 }
