@@ -67,7 +67,7 @@ export async function dbRefreshProjects() {
 				forks: repo.forks_count,
 				topics: repo.topics ?? [],
 				license: repo.license?.name,
-				link: repo.html_url,
+				url: repo.html_url,
 				createdAt: repo.created_at ?? new Date().toISOString(),
 				updatedAt: repo.updated_at ?? new Date().toISOString(),
 			});
@@ -86,7 +86,7 @@ export async function dbRefreshProjects() {
 					forks: repo.forks_count,
 					topics: repo.topics ?? [],
 					license: repo.license?.name,
-					link: repo.html_url,
+					url: repo.html_url,
 					createdAt: repo.created_at ?? new Date().toISOString(),
 					updatedAt: repo.updated_at ?? new Date().toISOString(),
 				};

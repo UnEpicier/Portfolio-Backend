@@ -26,6 +26,7 @@ const ProjectSchema = new Schema({
 	description: {
 		type: String,
 		required: true,
+		minlength: 0,
 	},
 	stars: {
 		type: Number,

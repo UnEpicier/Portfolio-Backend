@@ -20,6 +20,8 @@ export const connectToDB = async () => {
 			dbName: 'portfolio',
 		});
 
+		mongoose.Schema.Types.String.checkRequired((v) => v != null);
+
 		isConnected = true;
 	} catch (error) {
 		console.error(error);
