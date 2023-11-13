@@ -26,7 +26,7 @@ export async function getSkills(req: Request, res: Response) {
 		return res.status(500).json(dbSkills.message);
 	}
 
-	return res.status(200).json(dbSkills);
+	return res.status(200).json(dbSkills.skills);
 }
 
 export async function createSkill(req: Request, res: Response) {
