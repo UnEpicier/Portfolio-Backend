@@ -3,40 +3,25 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Mongoose -------------------------------------------------------
-import { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-const MessageSchema = new Schema({
-	firstname: {
-		type: String,
-		required: true,
-	},
-	lastname: {
-		type: String,
-		required: true,
-	},
-	email: {
-		type: String,
-		required: true,
-	},
-	header: {
-		type: String,
-		required: true,
-	},
-	content: {
-		type: String,
-		required: true,
-	},
-});
+let isConnected = false;
 
-const Message = models.Message || model('Message', MessageSchema);
+export const connectToDB = async () => {
+	mongoose.set('strictQuery', true);
 
-export interface IMessage {
-	firstname: string;
-	lastname: string;
-	email: string;
-	header: string;
-	content: string;
-}
+	if (isConnected) {
+		return;
+	}
 
-export default Message;
+	try {
+		await mongoose.connect(process.env.MONGODB_URI ?? '', {
+			dbName: 'portfolio',
+		});
+
+		isConnected = true;
+	} catch (error) {
+		console.error(error);
+	}
+};

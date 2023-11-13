@@ -22,7 +22,11 @@ import { verifyToken } from '../utils/auth';
 export async function getSkills(req: Request, res: Response) {
 	const dbSkills = await getDbSkills();
 
-	return res.status(dbSkills.success ? 200 : 500).json(dbSkills);
+	if (!dbSkills.success) {
+		return res.status(500).json(dbSkills.message);
+	}
+
+	return res.status(200).json(dbSkills);
 }
 
 export async function createSkill(req: Request, res: Response) {
@@ -31,28 +35,29 @@ export async function createSkill(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to create a skill.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!name) {
 		return res.status(400).json({
-			success: false,
 			message: 'Name field is missing in request body.',
 		});
 	}
 
-	const skillCreated = await createDbSkill(name);
+	const createdSkill = await createDbSkill(name);
 
-	return res.status(skillCreated.success ? 200 : 500).json(skillCreated);
+	if (!createdSkill.success) {
+		return res.status(500).json(createdSkill.message);
+	}
+
+	return res.status(200).json(createdSkill.skill);
 }
 
 export async function updateSkill(req: Request, res: Response) {
@@ -61,28 +66,29 @@ export async function updateSkill(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to rename a skill.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!oldName || !name) {
 		return res.status(400).json({
-			success: false,
 			message: 'Either name or oldName field is missing in request body.',
 		});
 	}
 
-	const skillUpdated = await updateDbSkill(oldName, name);
+	const updatedSkill = await updateDbSkill(oldName, name);
 
-	return res.status(skillUpdated.success ? 200 : 500).json(skillUpdated);
+	if (!updatedSkill.success) {
+		return res.status(500).json(updatedSkill.message);
+	}
+
+	return res.status(200).json(updatedSkill.skill);
 }
 
 export async function deleteSkill(req: Request, res: Response) {
@@ -91,26 +97,27 @@ export async function deleteSkill(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to delete a skill.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!name) {
 		return res.status(400).json({
-			success: false,
 			message: 'Name field is missing in request body.',
 		});
 	}
 
-	const skillDeleted = await deleteDbSkill(name);
+	const deletedSkill = await deleteDbSkill(name);
 
-	return res.status(skillDeleted.success ? 200 : 500).json(skillDeleted);
+	if (!deletedSkill.success) {
+		return res.status(500).json(deletedSkill.message);
+	}
+
+	return res.status(200).end();
 }

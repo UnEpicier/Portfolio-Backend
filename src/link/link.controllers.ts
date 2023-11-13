@@ -2,37 +2,25 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Op, Sequelize } from 'sequelize';
-import { defineModelLink } from 'src/models/link';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Link from 'src/models/link';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetLinks() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const linkModel = defineModelLink(dbConn);
+	try {
+		await connectToDB();
 
-	const dbLinks = await linkModel.findAll();
-
-	if (!dbLinks) {
+		return {
+			success: true,
+			links: await Link.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't get links.",
+			message: 'Failed to get links.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully getted links',
-		links: dbLinks,
-	};
 }
 
 export async function dbCreateLink(
@@ -41,31 +29,31 @@ export async function dbCreateLink(
 	color: string,
 	link: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const linkModel = defineModelLink(dbConn);
-
 	try {
-		await linkModel.create({
-			name: name,
-			icon: icon,
-			color: color,
-			link: link,
+		await connectToDB();
+
+		await Link.create({
+			name,
+			icon,
+			color,
+			link,
 		});
+
+		return {
+			success: true,
+			link: await Link.findOne({
+				name,
+				icon,
+				color,
+				link,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: `Can't create ${name} link.`,
+			message: 'Failed to create link.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfully created ${name} link.`,
-	};
 }
 
 export async function dbUpdateLink(
@@ -74,94 +62,53 @@ export async function dbUpdateLink(
 	color: string,
 	link: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const linkModel = defineModelLink(dbConn);
-
-	const dbLink = await linkModel.findOne({
-		where: {
-			[Op.or]: [
-				{ name: name },
-				{ icon: icon },
-				{ color: color },
-				{ link: link },
-			],
-		},
-	});
-
-	if (!dbLink) {
-		return {
-			success: false,
-			message: `Can't find the link.`,
-		};
-	}
-
-	if (
-		name == dbLink.name &&
-		icon == dbLink.icon &&
-		color == dbLink.color &&
-		link == dbLink.link
-	) {
-		return {
-			success: false,
-			message:
-				'Requested update parameters are the same as the actual values.',
-		};
-	}
-
 	try {
-		await linkModel.update(
+		await connectToDB();
+
+		await Link.updateOne(
 			{
-				name: name,
-				icon: icon,
-				color: color,
-				link: link,
+				$or: [{ name }, { icon }, { color }, { link }],
 			},
 			{
-				where: {
-					id: dbLink.id,
-				},
+				name,
+				icon,
+				color,
+				link,
 			},
 		);
+
+		return {
+			success: true,
+			link: await Link.findOne({
+				name,
+				icon,
+				color,
+				link,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: `Can't update the link.`,
+			message: 'Failed to edit link.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfuly updated ${name} link.`,
-	};
 }
 
 export async function dbDeleteLink(id: number) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const linkModel = defineModelLink(dbConn);
-
 	try {
-		await linkModel.destroy({
-			where: {
-				id: id,
-			},
+		await connectToDB();
+
+		await Link.deleteOne({
+			_id: id,
 		});
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete link.",
+			message: 'Failed to delete link.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully deleted link.',
-	};
 }

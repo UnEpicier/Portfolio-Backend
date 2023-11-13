@@ -7,34 +7,25 @@ import dotenv from 'dotenv';
 dotenv.config();
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelExperience } from 'src/models/experience';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Experience from 'src/models/experience';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetExperiences() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
+	try {
+		await connectToDB();
 
-	const experienceModel = defineModelExperience(dbConn);
-
-	const dbExperiences = await experienceModel.findAll();
-
-	if (!dbExperiences) {
+		return {
+			success: true,
+			experiences: await Experience.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't get experiences.",
+			message: 'Failed to get experiences.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully getted experiences.',
-		experiences: dbExperiences,
-	};
 }
 
 export async function dbPostExperience(
@@ -44,33 +35,33 @@ export async function dbPostExperience(
 	endedYear: string,
 	content: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const experienceModel = defineModelExperience(dbConn);
-
 	try {
-		await experienceModel.create({
-			header: header,
-			society: society,
-			startedYear: startedYear,
-			endedYear: endedYear != '' ? endedYear : "Aujourd'hui",
-			content: content,
+		await connectToDB();
+
+		await Experience.create({
+			header,
+			society,
+			startedYear,
+			endedYear,
+			content,
 		});
+
+		return {
+			success: true,
+			experience: await Experience.findOne({
+				header,
+				society,
+				startedYear,
+				endedYear,
+				content,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't create experience.",
+			message: 'Failed to create experience.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully created experience.',
-	};
 }
 
 export async function dbUpdateExperience(
@@ -81,66 +72,49 @@ export async function dbUpdateExperience(
 	endedYear: string | null,
 	content: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const experienceModel = defineModelExperience(dbConn);
-
 	try {
-		await experienceModel.update(
+		await connectToDB();
+
+		await Experience.updateOne(
 			{
-				header: header,
-				society: society,
-				startedYear: startedYear,
-				endedYear: endedYear ?? "Aujourd'hui",
-				content: content,
+				_id: id,
 			},
 			{
-				where: {
-					id: id,
-				},
+				header,
+				society,
+				startedYear,
+				endedYear,
+				content,
 			},
 		);
+
+		return {
+			success: true,
+			experience: await Experience.findById({ _id: id }),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't update experience.",
+			message: 'Failed to edit experience',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully updated experience.',
-	};
 }
 
 export async function dbDeleteExperience(id: number) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const experienceModel = defineModelExperience(dbConn);
-
 	try {
-		await experienceModel.destroy({
-			where: {
-				id: id,
-			},
+		await connectToDB();
+
+		await Experience.deleteOne({
+			_id: id,
 		});
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete experience.",
+			message: 'Failed to delete experience.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully deleted experience.',
-	};
 }

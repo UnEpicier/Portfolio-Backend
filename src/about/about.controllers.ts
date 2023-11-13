@@ -2,99 +2,69 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelAbout } from 'src/models/about';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import About from 'src/models/about';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetAbout() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
+	try {
+		await connectToDB();
 
-	const aboutModel = defineModelAbout(dbConn);
-
-	const abouts = await aboutModel.findAll();
-
-	if (!abouts) {
+		return {
+			success: true,
+			about: await About.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't get about informations.",
+			message: 'Failed to get about informations.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully getted about informations.',
-		about: abouts,
-	};
 }
 
 export async function dbPutDescription(description: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const aboutModel = defineModelAbout(dbConn);
-
 	try {
-		await aboutModel.update(
+		await connectToDB();
+
+		await About.updateOne(
+			{},
 			{
 				description: description,
 			},
-			{
-				where: {},
-			},
 		);
+
+		return {
+			success: true,
+			about: await About.findOne({}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't update description.",
+			message: 'Failed to edit description.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully updated description.',
-	};
 }
 
 export async function dbPutImage(image: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const aboutModel = defineModelAbout(dbConn);
-
 	try {
-		await aboutModel.update(
+		await connectToDB();
+
+		await About.updateOne(
+			{},
 			{
 				image: image,
 			},
-			{
-				where: {},
-			},
 		);
+
+		return {
+			success: true,
+			about: await About.findOne({}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't update image path.",
+			message: 'Failed to edit image path.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully updated image path.',
-	};
 }

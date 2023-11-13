@@ -3,66 +3,40 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import {
-	Sequelize,
-	DataTypes,
-	Model,
-	InferAttributes,
-	InferCreationAttributes,
-	CreationOptional,
-} from 'sequelize';
+import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Create/Update the links table
-// const dbConn = new Sequelize({
-// 	dialect: 'sqlite',
-// 	storage: `${process.cwd()}/databases/general.db`,
-// 	logging: false,
-// });
-// const model = defineModelFormation(dbConn);
-// model.sync({ alter: true });
+const FormationSchema = new Schema({
+	header: {
+		type: String,
+		required: true,
+	},
+	school: {
+		type: String,
+		required: true,
+	},
+	startedYear: {
+		type: Number,
+		default: new Date().getFullYear,
+	},
+	endedYear: {
+		type: Number,
+		default: new Date().getFullYear,
+	},
+	content: {
+		type: String,
+		required: true,
+	},
+});
 
-class Formation extends Model<
-	InferAttributes<Formation>,
-	InferCreationAttributes<Formation>
-> {
-	declare id: CreationOptional<number>;
-	declare header: string;
-	declare school: string;
-	declare startedYear: string;
-	declare endedYear: string;
-	declare content: string;
+const Formation = models.Formation || model('Formation', FormationSchema);
+
+export interface IFormation {
+	header: string;
+	society: string;
+	startedYear: number;
+	endedYear: number;
+	content: string;
 }
 
-export function defineModelFormation(db: Sequelize) {
-	return db.define<Formation>('formation', {
-		id: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-			autoIncrement: true,
-			primaryKey: true,
-		},
-		header: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		school: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		startedYear: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-		},
-		endedYear: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-			defaultValue: "Aujourd'hui",
-		},
-		content: {
-			type: DataTypes.TEXT,
-			defaultValue: '[]',
-			allowNull: false,
-		},
-	});
-}
+export default Formation;

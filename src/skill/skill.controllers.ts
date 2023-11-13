@@ -2,148 +2,89 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelSkill } from '../models/skill';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Skill from 'src/models/skill';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function getDbSkills() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const skillModel = defineModelSkill(dbConn);
+	try {
+		await connectToDB();
 
-	const dbSkills = await skillModel.findAll();
-
-	if (!dbSkills) {
+		return {
+			success: true,
+			skills: await Skill.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't find skills in database.",
+			message: 'Failed to get skills.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully getted skills',
-		skills: dbSkills,
-	};
 }
 
 export async function createDbSkill(name: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const skillModel = defineModelSkill(dbConn);
-
 	try {
-		await skillModel.create({
-			name: name,
+		await connectToDB();
+
+		await Skill.create({
+			name,
 		});
+
+		return {
+			success: true,
+			skill: await Skill.findOne({ name }),
+		};
 	} catch {
 		return {
 			success: false,
-			message: `Can't create ${name} skill.`,
+			message: 'Failed to create skill.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfully created ${name} skill.`,
-	};
 }
 
 export async function updateDbSkill(oldName: string, name: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const skillModel = defineModelSkill(dbConn);
-
-	const skillFound = await skillModel.findOne({
-		where: {
-			name: oldName,
-		},
-	});
-
-	if (!skillFound) {
-		return {
-			success: false,
-			message: `Can't find skill named ${oldName}.`,
-		};
-	}
-
 	try {
-		await skillModel.update(
+		await connectToDB();
+
+		await Skill.updateOne(
+			{
+				name: oldName,
+			},
 			{
 				name: name,
 			},
-			{
-				where: {
-					name: oldName,
-				},
-			},
 		);
+
+		return {
+			success: true,
+			skill: await Skill.findOne({
+				name,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: `Can't rename ${oldName} to ${name}.`,
+			message: 'Failed to update skill.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfully renamed ${oldName} to ${name}`,
-	};
 }
 
 export async function deleteDbSkill(name: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const skillModel = defineModelSkill(dbConn);
-
-	const skillFounded = await skillModel.findOne({
-		where: {
-			name: name,
-		},
-	});
-
-	if (!skillFounded) {
-		return {
-			success: false,
-			message: `Can't find skill named ${name}.`,
-		};
-	}
-
 	try {
-		await skillModel.destroy({
-			where: {
-				name: name,
-			},
+		await connectToDB();
+
+		await Skill.deleteOne({
+			name,
 		});
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: `Can't delete ${name} skill.`,
+			message: 'Failed to delete skill.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfully deleted ${name} skill.`,
-	};
 }

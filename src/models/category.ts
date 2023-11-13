@@ -2,36 +2,31 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ---------------------------------------------------- Sequelize ------------------------------------------------------
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
 import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-const UserSchema = new Schema(
-	{
-		name: {
-			type: String,
-			required: true,
-		},
-		email: {
-			type: String,
-			required: true,
-		},
-		password: {
-			type: String,
-			required: true,
-		},
+const CategorySchema = new Schema({
+	name: {
+		type: String,
+		required: true,
 	},
-	{
-		timestamps: true,
+	description: {
+		type: String,
+		required: true,
 	},
-);
+	image: {
+		type: String,
+		required: true,
+	},
+});
 
-const User = models.User || model('User', UserSchema);
+const Category = models.Category || model('Category', CategorySchema);
 
-export interface IUser {
+export interface Category {
 	name: string;
-	email: string;
-	password: string;
+	description: string;
+	image: string;
 }
 
-export default User;
+export default Category;

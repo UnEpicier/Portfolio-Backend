@@ -22,7 +22,11 @@ import { verifyToken } from '../utils/auth';
 export async function getFormations(req: Request, res: Response) {
 	const dbFormations = await dbGetFormations();
 
-	return res.status(dbFormations.success ? 200 : 500).json(dbFormations);
+	if (!dbFormations.success) {
+		return res.status(500).json(dbFormations.message);
+	}
+
+	return res.status(200).json(dbFormations.formations);
 }
 
 export async function postFormation(req: Request, res: Response) {
@@ -31,26 +35,23 @@ export async function postFormation(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to post an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found',
 		});
 	}
 
 	if (!header || !school || !startedYear || !content) {
 		return res.status(401).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const formationPosted = await dbPostFormation(
+	const postedFormation = await dbPostFormation(
 		header,
 		school,
 		startedYear,
@@ -58,9 +59,11 @@ export async function postFormation(req: Request, res: Response) {
 		content,
 	);
 
-	return res
-		.status(formationPosted.success ? 200 : 500)
-		.json(formationPosted);
+	if (!postedFormation.success) {
+		return res.status(500).json(postedFormation.message);
+	}
+
+	return res.status(200).json(postedFormation.formation);
 }
 
 export async function updateFormation(req: Request, res: Response) {
@@ -69,26 +72,23 @@ export async function updateFormation(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to update an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found',
 		});
 	}
 
 	if (!id || !header || !school || !startedYear || !endedYear || !content) {
 		return res.status(401).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const formationPosted = await dbUpdateFormation(
+	const updatedFormation = await dbUpdateFormation(
 		id,
 		header,
 		school,
@@ -97,9 +97,11 @@ export async function updateFormation(req: Request, res: Response) {
 		content,
 	);
 
-	return res
-		.status(formationPosted.success ? 200 : 500)
-		.json(formationPosted);
+	if (!updatedFormation.success) {
+		return res.status(500).json(updatedFormation.message);
+	}
+
+	return res.status(200).json(updatedFormation.formation);
 }
 
 export async function deleteFormation(req: Request, res: Response) {
@@ -108,28 +110,27 @@ export async function deleteFormation(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to delete an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!id) {
 		return res.status(401).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const formationDeleted = await dbDeleteFormation(id);
+	const deletedFormation = await dbDeleteFormation(id);
 
-	return res
-		.status(formationDeleted.success ? 200 : 500)
-		.json(formationDeleted);
+	if (!deletedFormation.success) {
+		return res.status(500).json(deletedFormation.message);
+	}
+
+	return res.status(200).end();
 }

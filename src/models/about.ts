@@ -2,46 +2,27 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ---------------------------------------------------- Sequelize ------------------------------------------------------
-import {
-	Sequelize,
-	DataTypes,
-	Model,
-	InferAttributes,
-	InferCreationAttributes,
-	CreationOptional,
-} from 'sequelize';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Create/Update the about table
-// const dbConn = new Sequelize({
-// 	dialect: 'sqlite',
-// 	storage: `${process.cwd()}/databases/general.db`,
-// 	logging: false,
-// });
-// const model = defineModelAbout(dbConn);
-// model.sync({ alter: true });
+const AboutSchema = new Schema({
+	imagePath: {
+		type: String,
+		required: true,
+		default: 'https://placehold.co/600x600',
+	},
+	description: {
+		type: String,
+		required: true,
+	},
+});
 
-class About extends Model<
-	InferAttributes<About>,
-	InferCreationAttributes<About>
-> {
-	declare image: string;
-	declare description: string;
+const About = models.About || model('About', AboutSchema);
+
+export interface IAbout {
+	imagePath: string;
+	description: string;
 }
 
-export function defineModelAbout(db: Sequelize) {
-	return db.define<About>('about', {
-		image: {
-			type: DataTypes.TEXT,
-			defaultValue: 'about/default.png',
-			allowNull: false,
-			primaryKey: false,
-		},
-		description: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-			primaryKey: false,
-		},
-	});
-}
+export default About;

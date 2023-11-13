@@ -14,10 +14,14 @@ import { dbGetAbout, dbPutDescription, dbPutImage } from './about.controllers';
 import { verifyToken } from '../utils/auth';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function getAbout(req: Request, res: Response) {
+export async function getAbout(_: Request, res: Response) {
 	const dbAbout = await dbGetAbout();
 
-	return res.status(dbAbout.success ? 200 : 500).json(dbAbout);
+	if (!dbAbout.success) {
+		return res.status(500).json(dbAbout.message);
+	}
+
+	return res.status(200).json(dbAbout.about);
 }
 
 export async function putDescription(req: Request, res: Response) {
@@ -26,28 +30,29 @@ export async function putDescription(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to change description.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!description) {
 		return res.status(401).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const descriptionUpdated = await dbPutDescription(description);
+	const updatedDescription = await dbPutDescription(description);
 
-	res.status(descriptionUpdated.success ? 200 : 500).json(descriptionUpdated);
+	if (!updatedDescription.success) {
+		return res.status(500).json(updatedDescription.message);
+	}
+
+	return res.status(200).json(updatedDescription.about);
 }
 
 export async function putImage(req: Request, res: Response) {
@@ -56,26 +61,27 @@ export async function putImage(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to change the image.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!image) {
 		return res.status(401).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const imageUpdated = await dbPutImage(image);
+	const updatedImage = await dbPutImage(image);
 
-	return res.status(imageUpdated.success ? 200 : 500).json(imageUpdated);
+	if (!updatedImage.success) {
+		return res.status(500).json(updatedImage.message);
+	}
+
+	return res.status(200).json(updatedImage.about);
 }

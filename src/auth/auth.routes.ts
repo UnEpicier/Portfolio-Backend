@@ -9,6 +9,7 @@ import { Router } from 'express';
 // ---------------------------------------------------- Services -------------------------------------------------------
 import {
 	checkToken,
+	getUsers,
 	signIn,
 	signUp,
 	changePassword,
@@ -22,6 +23,10 @@ const router = Router();
 
 router.get('/auth', async (req, res) => {
 	await checkToken(req, res);
+});
+
+router.get('/users', async (req, res) => {
+	await getUsers(req, res);
 });
 
 router.post('/auth/signin', async (req, res) => {

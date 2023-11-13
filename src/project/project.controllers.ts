@@ -7,9 +7,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelProject } from 'src/models/project';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Project, { IProject } from 'src/models/project';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------- Octokit -------------------------------------------------------
@@ -17,119 +17,104 @@ import { Octokit } from 'octokit';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetProjects() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const projectModel = defineModelProject(dbConn);
-
-	const dbProjects = await projectModel.findAll();
-
-	if (!dbProjects) {
-		return {
-			success: false,
-			message: "Can't get projects.",
-		};
-	}
-
-	const projects: any[] = [...dbProjects];
-
-	for (let i = 0; i < projects.length; i++) {
-		const topics = projects[i].topics;
-		projects[i].topics = topics.split(',') || [];
-	}
-
-	return {
-		success: true,
-		message: 'Successfully getted projects.',
-		projects: projects,
-	};
-}
-
-export async function dbRefreshProjects() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const projectModel = defineModelProject(dbConn);
-
-	// Remove all stored repos
 	try {
-		await projectModel.destroy({
-			truncate: true,
+		await connectToDB();
+
+		let projects: IProject[] = await Project.find({});
+
+		projects = projects.map((project) => {
+			return {
+				...project,
+				topics: (project.topics as string).split(',') ?? [],
+			};
 		});
+
+		return {
+			success: true,
+			projects,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete all old projects stored in database.",
+			message: 'Failed to get projects.',
 		};
 	}
+}
 
-	const octokit = new Octokit({
-		auth: process.env.GITHUB_TOKEN,
-	});
-
+export async function dbRefreshProjects() {
 	try {
+		await connectToDB();
+
+		Project.deleteMany({});
+
+		const octokit = new Octokit({
+			auth: process.env.GITHUB_TOKEN,
+		});
+
 		const { data } = await octokit.request('GET /user/repos', {
 			per_page: 100,
 			visibility: 'public',
 		});
 
 		data.map(async (repo) => {
-			await projectModel.create({
-				id: repo.id,
+			await Project.create({
 				ownerName: repo.owner.login,
 				ownerImage: repo.owner.avatar_url,
 				ownerUrl: repo.owner.url,
 				name: repo.name,
-				description: repo.description || '',
+				description: repo.description ?? '',
 				stars: repo.stargazers_count,
 				forks: repo.forks_count,
-				topics: repo.topics ? repo.topics.toString() : '[]',
+				topics: repo.topics ?? [],
 				license: repo.license?.name,
 				link: repo.html_url,
-				createdAt: repo.created_at || new Date().toISOString(),
-				updatedAt: repo.updated_at || new Date().toISOString(),
+				createdAt: repo.created_at ?? new Date().toISOString(),
+				updatedAt: repo.updated_at ?? new Date().toISOString(),
 			});
 		});
+
+		return {
+			success: true,
+			projects: data.map((repo) => {
+				return {
+					ownerName: repo.owner.login,
+					ownerImage: repo.owner.avatar_url,
+					ownerUrl: repo.owner.url,
+					name: repo.name,
+					description: repo.description ?? '',
+					stars: repo.stargazers_count,
+					forks: repo.forks_count,
+					topics: repo.topics ?? [],
+					license: repo.license?.name,
+					link: repo.html_url,
+					createdAt: repo.created_at ?? new Date().toISOString(),
+					updatedAt: repo.updated_at ?? new Date().toISOString(),
+				};
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't get and store projects from github.",
+			message: 'Failed to refresh projects list.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully refreshed projects.',
-	};
 }
 
 export async function dbDeleteProject(id: number) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const projectModel = defineModelProject(dbConn);
-
 	try {
-		await projectModel.destroy({
-			where: {
-				id: id,
-			},
+		await connectToDB();
+
+		Project.deleteOne({
+			_id: id,
 		});
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete project.",
+			message: 'Failed to delete project.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully deleted project.',
-	};
 }

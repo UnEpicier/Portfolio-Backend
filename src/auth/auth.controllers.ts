@@ -2,15 +2,10 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelToken } from '../models/token';
-import { defineModelUser } from '../models/user';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import User from 'src/models/user';
+import Token from 'src/models/token';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------- Crypto --------------------------------------------------------
@@ -21,361 +16,223 @@ import bcrypt from 'bcrypt';
 import { verifyToken, generateToken } from '../utils/auth';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function checkUserToken(token: string) {
+export async function dbCheckToken(token: string) {
 	return await verifyToken(token);
 }
 
-export async function signInUser(email: string, password: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const userModel = defineModelUser(dbConn);
-	const tokenModel = defineModelToken(dbConn);
-
-	const dbUser = await userModel.findOne({
-		where: { email },
-		attributes: ['id', 'password'],
-	});
-
-	if (!dbUser) {
-		return {
-			success: false,
-			code: 404,
-			message: 'Wrong credentials.',
-		};
-	}
-
-	if (!bcrypt.compareSync(password, dbUser.password)) {
-		return {
-			success: false,
-			code: 404,
-			message: 'Wrong credentials.',
-		};
-	}
-
-	const token = generateToken();
-
+export async function dbGetUsers() {
 	try {
-		await tokenModel.create({
-			token: token,
-			userId: dbUser.id,
-		});
+		await connectToDB();
+
+		return {
+			success: true,
+			users: User.find({}),
+		};
 	} catch {
 		return {
 			success: false,
-			code: 500,
-			message: "Can't create a new token in database.",
+			message: 'Failed to get users.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully logged in.',
-		token: token,
-	};
 }
 
-export async function signOutUser(token: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const tokenModel = defineModelToken(dbConn);
-
+export async function dbSignIn(email: string, password: string) {
 	try {
-		await tokenModel.destroy({
-			where: { token },
+		await connectToDB();
+
+		const userInDB = await User.findOne({
+			email,
 		});
+
+		if (!userInDB) {
+			return {
+				success: false,
+				message: 'Failed to found an user with the provided email.',
+			};
+		}
+
+		if (!bcrypt.compareSync(password, userInDB.password)) {
+			return {
+				success: false,
+				message: 'Wrong credentials.',
+			};
+		}
+
+		const token = generateToken();
+
+		await Token.create({
+			token,
+			userId: userInDB._id,
+		});
+
+		return {
+			success: true,
+			token,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete token from database.",
+			message: 'Failed to authentificate user.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully signed out.',
-	};
 }
 
-export async function createAccount(
-	name: string,
-	email: string,
-	password: string,
-) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const userModel = defineModelUser(dbConn);
-
+export async function dbSignOut(token: string) {
 	try {
-		userModel.create({
+		await connectToDB();
+
+		await Token.deleteOne({
+			token,
+		});
+
+		return {
+			success: true,
+		};
+	} catch {
+		return {
+			success: false,
+			message: 'Failed to sign out user.',
+		};
+	}
+}
+
+export async function dbSignUp(name: string, email: string, password: string) {
+	try {
+		await connectToDB();
+
+		await User.create({
 			name,
 			email,
 			password: bcrypt.hashSync(password, 10),
 		});
+
+		return {
+			success: true,
+			user: await User.findOne({ name, email }),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't create a new account",
+			message: 'Failed to create a new account.',
 		};
 	}
-
-	return {
-		success: true,
-		message: `Successfully created an account for ${name}`,
-	};
 }
 
-export async function deleteUserAccount(name: string, email: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const userModel = defineModelUser(dbConn);
-	const tokenModel = defineModelToken(dbConn);
-
-	let userId;
-
+export async function dbDeleteUser(id: string) {
 	try {
-		const user = await userModel.findOne({
-			where: {
-				name,
-				email,
-			},
-			attributes: ['id'],
+		await connectToDB();
+
+		await User.deleteOne({
+			_id: id,
 		});
 
-		if (!user) {
-			return {
-				success: false,
-				message: "Can't find an account with provided name and email.",
-			};
-		}
+		await Token.deleteMany({
+			_id: id,
+		});
 
-		userId = user.id;
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't find an account with provided name and email.",
+			message: 'Failed to delete account.',
 		};
 	}
-
-	try {
-		await tokenModel.destroy({
-			where: {
-				userId,
-			},
-		});
-
-		await userModel.destroy({
-			where: {
-				name,
-				email,
-			},
-		});
-	} catch {
-		return {
-			success: false,
-			message: "Can't delete user or can't delete existing tokens.",
-		};
-	}
-
-	return {
-		success: true,
-		message: `Successfully deleted account of ${name}`,
-	};
 }
 
-export async function changeUserPassword(
+export async function dbChangePassword(
 	token: string,
 	oldPassword: string,
 	password: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const tokenModel = defineModelToken(dbConn);
-	const userModel = defineModelUser(dbConn);
+	try {
+		await connectToDB();
 
-	const dbToken = await tokenModel.findOne({
-		where: {
+		const userInDB = await Token.findOne({
 			token,
-		},
-		attributes: ['userId'],
-	});
+		}).populate('userId');
 
-	if (!dbToken) {
-		return {
-			success: false,
-			message: "Can't find token in database.",
-		};
-	}
-
-	try {
-		const oldDbPassword = await userModel.findOne({
-			where: {
-				id: dbToken.userId,
-			},
-			attributes: ['password'],
-		});
-
-		if (!oldDbPassword) {
+		if (!userInDB) {
 			return {
 				success: false,
-				message:
-					"Can't find actual password for the corresponding account.",
+				message: 'Failed to find user.',
 			};
 		}
 
-		if (!bcrypt.compareSync(oldPassword, oldDbPassword.password)) {
+		if (!bcrypt.compareSync(oldPassword, userInDB.password)) {
 			return {
 				success: false,
-				message:
-					"Given old password doesn't match with the actual password.",
+				message: 'Incorrect actual password.',
 			};
 		}
-	} catch {
-		return {
-			success: false,
-			message:
-				"Can't find actual password for the corresponding account.",
-		};
-	}
 
-	if (oldPassword == password) {
-		return {
-			success: false,
-			message: 'Old password is the new wanted password.',
-		};
-	}
-
-	try {
-		const hashedPassword = bcrypt.hashSync(password, 10);
-		await userModel.update(
-			{ password: hashedPassword },
+		User.updateOne(
 			{
-				where: {
-					id: dbToken.userId,
-				},
+				_id: userInDB._id,
+			},
+			{
+				password: bcrypt.hashSync(password, 10),
 			},
 		);
+
+		return {
+			success: true,
+			user: User.findOne({ _id: userInDB._id }),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't change the password.",
+			message: 'Failed to update user password.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully changed the password.',
-	};
 }
 
-export async function changeUserEmail(
+export async function dbChangeEmail(
 	token: string,
 	oldEmail: string,
 	email: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const tokenModel = defineModelToken(dbConn);
-	const userModel = defineModelUser(dbConn);
+	try {
+		await connectToDB();
 
-	const dbToken = await tokenModel.findOne({
-		where: {
+		const userInDB = await Token.findOne({
 			token,
-		},
-		attributes: ['userId'],
-	});
+		}).populate('userId');
 
-	if (!dbToken) {
-		return {
-			success: false,
-			message: "Can't find token in database.",
-		};
-	}
-
-	try {
-		const oldDbEmail = await userModel.findOne({
-			where: {
-				id: dbToken.userId,
-			},
-			attributes: ['email'],
-		});
-
-		if (!oldDbEmail) {
+		if (!userInDB) {
 			return {
 				success: false,
-				message:
-					"Can't find actual email for the corresponding account.",
+				message: 'Failed to find user.',
 			};
 		}
 
-		if (oldEmail != oldDbEmail.email) {
+		if (oldEmail != userInDB.email) {
 			return {
 				success: false,
-				message: "Given old email doesn't match with the actual email.",
+				message: 'Incorrect actual email.',
 			};
 		}
-	} catch {
-		return {
-			success: false,
-			message: "Can't find actual email for the corresponding account.",
-		};
-	}
 
-	if (oldEmail == email) {
-		return {
-			success: false,
-			message: 'Old email is the new wanted email.',
-		};
-	}
-
-	try {
-		await userModel.update(
-			{ email: email },
+		User.updateOne(
 			{
-				where: {
-					id: dbToken.userId,
-				},
+				_id: userInDB._id,
+			},
+			{
+				email: email,
 			},
 		);
+
+		return {
+			success: true,
+			user: User.findOne({
+				_id: userInDB._id,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't change the email.",
+			message: 'Failed to update user email.',
 		};
 	}
-
-	try {
-		await tokenModel.destroy({
-			where: {
-				userId: dbToken.userId,
-			},
-		});
-	} catch {
-		return {
-			success: false,
-			message: "Can't remove all active tokens",
-		};
-	}
-
-	return {
-		success: true,
-		message: 'Successfully changed the email.',
-	};
 }

@@ -8,13 +8,14 @@ import { Request, Response } from 'express';
 
 // --------------------------------------------------- Controllers -----------------------------------------------------
 import {
-	checkUserToken,
-	createAccount,
-	signInUser,
-	signOutUser,
-	deleteUserAccount,
-	changeUserPassword,
-	changeUserEmail,
+	dbCheckToken,
+	dbGetUsers,
+	dbSignIn,
+	dbSignOut,
+	dbSignUp,
+	dbDeleteUser,
+	dbChangeEmail,
+	dbChangePassword,
 } from './auth.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -29,17 +30,35 @@ export async function checkToken(req: Request, res: Response) {
 		return res.status(401).json({ message: 'Token not provided.' });
 	}
 
-	if (!(await checkUserToken(token))) {
-		return res.status(404).json({
-			success: false,
-			message: "Can't find provided token in database.",
+	if (!(await dbCheckToken(token))) {
+		return res.status(404).end();
+	}
+
+	return res.status(200).end();
+}
+
+export async function getUsers(req: Request, res: Response) {
+	const token = req.headers.authorization;
+
+	if (!token) {
+		return res.status(401).json({
+			message: 'Token not provided.',
 		});
 	}
 
-	return res.status(200).json({
-		success: true,
-		message: 'Provided token found in database.',
-	});
+	if (!(await verifyToken(token))) {
+		return res.status(404).json({
+			message: 'Provided token not found in database.',
+		});
+	}
+
+	const dbUsers = await dbGetUsers();
+
+	if (!dbUsers.success) {
+		return res.status(500).json(dbUsers.message);
+	}
+
+	return res.status(200).json(dbUsers.users);
 }
 
 export async function signIn(req: Request, res: Response) {
@@ -48,25 +67,23 @@ export async function signIn(req: Request, res: Response) {
 
 	if (!email || !password) {
 		return res.status(400).json({
-			error: true,
 			message: 'Email or password field missing in body',
 		});
 	}
 
 	if (token && (await verifyToken(token))) {
 		return res.status(200).json({
-			success: true,
 			message: 'Already logged in',
 		});
 	}
 
-	const signedIn = await signInUser(email, password);
+	const signedIn = await dbSignIn(email, password);
 
-	if (!signedIn.success && signedIn.code) {
-		return res.status(signedIn.code).json(signedIn);
+	if (!signedIn.success) {
+		return res.status(500).json(signedIn.message);
 	}
 
-	return res.status(200).json(signedIn);
+	return res.status(200).json(signedIn.token);
 }
 
 export async function signOut(req: Request, res: Response) {
@@ -74,21 +91,23 @@ export async function signOut(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A token is required to logout.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found in database.',
 		});
 	}
 
-	const signedOut = await signOutUser(token);
+	const signedOut = await dbSignOut(token);
 
-	return res.status(signedOut.success ? 200 : 500).json(signedOut);
+	if (!signedOut.success) {
+		return res.status(500).json(signedOut.message);
+	}
+
+	return res.status(200).end();
 }
 
 export async function signUp(req: Request, res: Response) {
@@ -116,14 +135,18 @@ export async function signUp(req: Request, res: Response) {
 		});
 	}
 
-	const accountCreated = await createAccount(name, email, password);
+	const createdAccount = await dbSignUp(name, email, password);
 
-	return res.status(accountCreated.success ? 200 : 500).json(accountCreated);
+	if (!createdAccount.success) {
+		return res.status(500).json(createdAccount.message);
+	}
+
+	return res.status(200).json(createdAccount.user);
 }
 
 export async function deletedAccount(req: Request, res: Response) {
 	const token = req.headers.authorization;
-	const { name, email } = req.body;
+	const { id } = req.body;
 
 	if (!token) {
 		return res.status(401).json({
@@ -139,16 +162,20 @@ export async function deletedAccount(req: Request, res: Response) {
 		});
 	}
 
-	if (!name || !email) {
+	if (!id) {
 		return res.status(400).json({
 			success: false,
-			message: 'Name or email field is missing in request body.',
+			message: 'One field is missing in request body.',
 		});
 	}
 
-	const accountDeleted = await deleteUserAccount(name, email);
+	const deletedAccount = await dbDeleteUser(id);
 
-	return res.status(accountDeleted.success ? 200 : 500).json(accountDeleted);
+	if (!deletedAccount.success) {
+		return res.status(500).json(deletedAccount.message);
+	}
+
+	return res.status(200).end();
 }
 
 export async function changePassword(req: Request, res: Response) {
@@ -176,15 +203,17 @@ export async function changePassword(req: Request, res: Response) {
 		});
 	}
 
-	const passwordChanged = await changeUserPassword(
+	const changedPassword = await dbChangePassword(
 		token,
 		oldPassword,
 		password,
 	);
 
-	return res
-		.status(passwordChanged.success ? 200 : 500)
-		.json(passwordChanged);
+	if (!changedPassword.success) {
+		return res.status(500).json(changedPassword.message);
+	}
+
+	return res.status(200).json(changedPassword.user);
 }
 
 export async function changeEmail(req: Request, res: Response) {
@@ -212,7 +241,11 @@ export async function changeEmail(req: Request, res: Response) {
 		});
 	}
 
-	const emailChanged = await changeUserEmail(token, oldEmail, email);
+	const changedEmail = await dbChangeEmail(token, oldEmail, email);
 
-	return res.status(emailChanged.success ? 200 : 500).json(emailChanged);
+	if (!changedEmail.success) {
+		return res.status(500).json(changedEmail.message);
+	}
+
+	return res.status(200).json(changedEmail.user);
 }

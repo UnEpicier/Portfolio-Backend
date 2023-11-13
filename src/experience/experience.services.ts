@@ -19,10 +19,14 @@ import {
 import { verifyToken } from '../utils/auth';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function getExperiences(req: Request, res: Response) {
+export async function getExperiences(_: Request, res: Response) {
 	const dbExperiences = await dbGetExperiences();
 
-	return res.status(dbExperiences.success ? 200 : 500).json(dbExperiences);
+	if (!dbExperiences.success) {
+		return res.status(500).json(dbExperiences.message);
+	}
+
+	return res.status(200).json(dbExperiences.experiences);
 }
 
 export async function postExperience(req: Request, res: Response) {
@@ -31,26 +35,23 @@ export async function postExperience(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to post an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found',
 		});
 	}
 
 	if (!header || !society || !startedYear || !content) {
 		return res.status(401).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const experiencePosted = await dbPostExperience(
+	const postedExperience = await dbPostExperience(
 		header,
 		society,
 		startedYear,
@@ -58,9 +59,11 @@ export async function postExperience(req: Request, res: Response) {
 		content,
 	);
 
-	return res
-		.status(experiencePosted.success ? 200 : 500)
-		.json(experiencePosted);
+	if (!postedExperience.success) {
+		return res.status(500).json(postedExperience.message);
+	}
+
+	return res.status(200).json(postedExperience.experience);
 }
 
 export async function updateExperience(req: Request, res: Response) {
@@ -69,26 +72,23 @@ export async function updateExperience(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to update an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found',
 		});
 	}
 
 	if (!id || !header || !society || !startedYear || !endedYear || !content) {
 		return res.status(401).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const experiencePosted = await dbUpdateExperience(
+	const updatedExperience = await dbUpdateExperience(
 		id,
 		header,
 		society,
@@ -97,9 +97,11 @@ export async function updateExperience(req: Request, res: Response) {
 		content,
 	);
 
-	return res
-		.status(experiencePosted.success ? 200 : 500)
-		.json(experiencePosted);
+	if (!updatedExperience.success) {
+		return res.status(500).json(updatedExperience.message);
+	}
+
+	return res.status(200).json(updatedExperience.experience);
 }
 
 export async function deleteExperience(req: Request, res: Response) {
@@ -108,28 +110,27 @@ export async function deleteExperience(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to delete an experience.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!id) {
 		return res.status(401).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const experienceDeleted = await dbDeleteExperience(id);
+	const deletedExperience = await dbDeleteExperience(id);
 
-	return res
-		.status(experienceDeleted.success ? 200 : 500)
-		.json(experienceDeleted);
+	if (!deletedExperience.success) {
+		return res.status(500).json(deletedExperience.message);
+	}
+
+	return res.status(200).end();
 }

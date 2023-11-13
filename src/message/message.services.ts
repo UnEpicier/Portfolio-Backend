@@ -23,42 +23,47 @@ export async function getMessages(req: Request, res: Response) {
 
 	if (!token) {
 		return {
-			success: false,
 			message: 'A valid token is required to get messages.',
 		};
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Invalid authorization token.',
 		});
 	}
 
 	const dbMessages = await dbGetMessages();
 
-	return res.status(dbMessages.success ? 200 : 500).json(dbMessages);
+	if (!dbMessages.success) {
+		return res.status(500).json(dbMessages.message);
+	}
+
+	return res.status(200).json(dbMessages.messages);
 }
 
 export async function postMessage(req: Request, res: Response) {
-	const { firstName, lastName, email, header, content } = req.body;
+	const { firstname, lastname, email, header, content } = req.body;
 
-	if (!firstName) {
+	if (!firstname || !lastname || !email || !header || !content) {
 		return res.status(400).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const messageCreated = await dbPostMessage(
-		firstName,
-		lastName,
+	const createdMessage = await dbPostMessage(
+		firstname,
+		lastname,
 		email,
 		header,
 		content,
 	);
 
-	return res.status(messageCreated.success ? 200 : 500).json(messageCreated);
+	if (!createdMessage.success) {
+		return res.status(500).json(createdMessage.message);
+	}
+
+	return res.status(200).json(createdMessage.message);
 }
 
 export async function deleteMessage(req: Request, res: Response) {
@@ -67,26 +72,27 @@ export async function deleteMessage(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to delete a message.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Provided token not found.',
 		});
 	}
 
 	if (!id) {
 		return res.status(400).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const messageDeleted = await dbDeleteMessage(id);
+	const deletedMessage = await dbDeleteMessage(id);
 
-	return res.status(messageDeleted.success ? 200 : 500).json(messageDeleted);
+	if (!deletedMessage.success) {
+		return res.status(500).json(deletedMessage.message);
+	}
+
+	return res.status(200).end();
 }

@@ -3,58 +3,33 @@
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Sequelize ------------------------------------------------------
-import {
-	Sequelize,
-	DataTypes,
-	Model,
-	InferAttributes,
-	InferCreationAttributes,
-	CreationOptional,
-} from 'sequelize';
+import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// Create/Update the token table
-// const dbConn = new Sequelize({
-// 	dialect: 'sqlite',
-// 	storage: `${process.cwd()}/databases/general.db`,
-// 	logging: false,
-// });
-// const model = defineModelToken(dbConn);
-// model.sync({ alter: true });
+const TokenSchema = new Schema(
+	{
+		token: {
+			type: String,
+			required: true,
+		},
+		userId: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: true,
+		},
+	},
+	{
+		timestamps: true,
+	},
+);
 
-class Token extends Model<
-	InferAttributes<Token>,
-	InferCreationAttributes<Token>
-> {
-	declare token: string;
-	declare userId: number;
-	declare createdAt: CreationOptional<Date>;
+const Token = models.Token || model('Token', TokenSchema);
+
+export interface IToken {
+	token: string;
+	userId: number;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-export function defineModelToken(db: Sequelize) {
-	return db.define<Token>(
-		'token',
-		{
-			token: {
-				type: DataTypes.TEXT,
-				allowNull: false,
-				unique: true,
-			},
-			userId: {
-				type: DataTypes.INTEGER,
-				allowNull: false,
-				references: {
-					model: 'users',
-					key: 'id',
-				},
-			},
-			createdAt: {
-				type: DataTypes.TEXT,
-				defaultValue: new Date().toISOString(),
-			},
-		},
-		{
-			updatedAt: false,
-		},
-	);
-}
+export default Token;

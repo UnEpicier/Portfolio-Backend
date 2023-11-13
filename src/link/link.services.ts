@@ -19,10 +19,14 @@ import {
 import { verifyToken } from '../utils/auth';
 // ---------------------------------------------------------------------------------------------------------------------
 
-export async function getLinks(req: Request, res: Response) {
+export async function getLinks(_: Request, res: Response) {
 	const dbLinks = await dbGetLinks();
 
-	return res.status(200).json(dbLinks);
+	if (!dbLinks.success) {
+		return res.status(500).json(dbLinks.message);
+	}
+
+	return res.status(200).json(dbLinks.links);
 }
 
 export async function createLink(req: Request, res: Response) {
@@ -31,28 +35,29 @@ export async function createLink(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to create a link.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Invalid authorization token.',
 		});
 	}
 
 	if (!name || !icon || !color || !link) {
 		return res.status(400).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const linkCreated = await dbCreateLink(name, icon, color, link);
+	const createdLink = await dbCreateLink(name, icon, color, link);
 
-	return res.status(linkCreated.success ? 200 : 500).json(linkCreated);
+	if (!createdLink.success) {
+		return res.status(500).json(createdLink.message);
+	}
+
+	return res.status(200).json(createdLink.link);
 }
 
 export async function updateLink(req: Request, res: Response) {
@@ -61,28 +66,29 @@ export async function updateLink(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to update a link.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Invalid authorization token.',
 		});
 	}
 
 	if (!name || !icon || !color || !link) {
 		return res.status(400).json({
-			success: false,
 			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const linkUpdated = await dbUpdateLink(name, icon, color, link);
+	const updatedLink = await dbUpdateLink(name, icon, color, link);
 
-	return res.status(linkUpdated.success ? 200 : 500).json(linkUpdated);
+	if (!updatedLink.success) {
+		return res.status(500).json(updatedLink.message);
+	}
+
+	return res.status(200).json(updatedLink.link);
 }
 
 export async function deleteLink(req: Request, res: Response) {
@@ -91,26 +97,27 @@ export async function deleteLink(req: Request, res: Response) {
 
 	if (!token) {
 		return res.status(401).json({
-			success: false,
 			message: 'A valid token is required to delete a link.',
 		});
 	}
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			success: false,
 			message: 'Invalid authorization token.',
 		});
 	}
 
 	if (!id) {
 		return res.status(400).json({
-			success: false,
 			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const linkDeleted = await dbDeleteLink(id);
+	const deletedLink = await dbDeleteLink(id);
 
-	return res.status(linkDeleted.success ? 200 : 500).json(linkDeleted);
+	if (!deletedLink.success) {
+		return res.status(500).json(deletedLink.message);
+	}
+
+	return res.status(200).end();
 }

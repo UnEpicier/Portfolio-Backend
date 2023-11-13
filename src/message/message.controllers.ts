@@ -2,97 +2,78 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelMessage } from 'src/models/message';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Message from 'src/models/message';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetMessages() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const messageModel = defineModelMessage(dbConn);
+	try {
+		await connectToDB();
 
-	const dbMessages = await messageModel.findAll();
-
-	if (!dbMessages) {
+		return {
+			success: true,
+			messages: await Message.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't get messages.",
+			message: 'Failed to get messages.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'successfully getted messages.',
-		messages: dbMessages,
-	};
 }
 
 export async function dbPostMessage(
-	firstName: string,
-	lastName: string,
+	firstname: string,
+	lastname: string,
 	email: string,
 	header: string,
 	content: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const messageModel = defineModelMessage(dbConn);
-
 	try {
-		await messageModel.create({
-			firstName: firstName,
-			lastName: lastName,
-			email: email,
-			header: header,
-			content: content,
+		await connectToDB();
+
+		await Message.create({
+			firstname,
+			lastname,
+			email,
+			header,
+			content,
 		});
+
+		return {
+			success: true,
+			message: await Message.findOne({
+				firstname,
+				lastname,
+				email,
+				header,
+				content,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't create the message.",
+			message: 'Failed to post message.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully created the message.',
-	};
 }
 
 export async function dbDeleteMessage(id: string) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-	const messageModel = defineModelMessage(dbConn);
-
 	try {
-		await messageModel.destroy({
-			where: {
-				id: id,
-			},
+		await connectToDB();
+
+		await Message.deleteOne({
+			_id: id,
 		});
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete message.",
+			message: 'Failed to delete message.',
 		};
 	}
-
-	return {
-		success: false,
-		message: 'Successfully deleted message.',
-	};
 }

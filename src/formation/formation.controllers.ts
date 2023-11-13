@@ -2,39 +2,25 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- DotEnv --------------------------------------------------------
-import dotenv from 'dotenv';
-dotenv.config();
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ----------------------------------------------- Sequelize & Models --------------------------------------------------
-import { Sequelize } from 'sequelize';
-import { defineModelFormation } from 'src/models/formation';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Formation from 'src/models/formation';
 // ---------------------------------------------------------------------------------------------------------------------
 
 export async function dbGetFormations() {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
+	try {
+		await connectToDB();
 
-	const formationModel = defineModelFormation(dbConn);
-
-	const dbFormations = await formationModel.findAll();
-
-	if (!dbFormations) {
+		return {
+			success: true,
+			formations: await Formation.find({}),
+		};
+	} catch {
 		return {
 			success: false,
-			message: "Can't get formations.",
+			message: 'Failed to get formations.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully getted formations.',
-		formations: dbFormations,
-	};
 }
 
 export async function dbPostFormation(
@@ -44,33 +30,33 @@ export async function dbPostFormation(
 	endedYear: string,
 	content: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const formationModel = defineModelFormation(dbConn);
-
 	try {
-		await formationModel.create({
-			header: header,
-			school: school,
-			startedYear: startedYear,
-			endedYear: endedYear != '' ? endedYear : "Aujourd'hui",
-			content: content,
+		await connectToDB();
+
+		await Formation.create({
+			header,
+			school,
+			startedYear,
+			endedYear,
+			content,
 		});
+
+		return {
+			success: true,
+			formation: await Formation.findOne({
+				header,
+				school,
+				startedYear,
+				endedYear,
+				content,
+			}),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't create formation.",
+			message: 'Failed to create a formation.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully created formation.',
-	};
 }
 
 export async function dbUpdateFormation(
@@ -81,66 +67,47 @@ export async function dbUpdateFormation(
 	endedYear: string | null,
 	content: string,
 ) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const formationModel = defineModelFormation(dbConn);
-
 	try {
-		await formationModel.update(
+		await connectToDB();
+
+		await Formation.updateOne(
 			{
-				header: header,
-				school: school,
-				startedYear: startedYear,
-				endedYear: endedYear ?? "Aujourd'hui",
-				content: content,
+				_id: id,
 			},
 			{
-				where: {
-					id: id,
-				},
+				header,
+				school,
+				startedYear,
+				endedYear,
+				content,
 			},
 		);
+
+		return {
+			success: true,
+			formation: Formation.findById(id),
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't update formation.",
+			message: 'Failed to edit formation.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully updated formation.',
-	};
 }
 
 export async function dbDeleteFormation(id: number) {
-	const dbConn = new Sequelize({
-		dialect: 'sqlite',
-		storage: `${process.cwd()}/databases/general.db`,
-		logging: false,
-	});
-
-	const formationModel = defineModelFormation(dbConn);
-
 	try {
-		await formationModel.destroy({
-			where: {
-				id: id,
-			},
-		});
+		await connectToDB();
+
+		await Formation.deleteOne({ _id: id });
+
+		return {
+			success: true,
+		};
 	} catch {
 		return {
 			success: false,
-			message: "Can't delete formation.",
+			message: 'Failed to delete formation.',
 		};
 	}
-
-	return {
-		success: true,
-		message: 'Successfully deleted formation.',
-	};
 }
