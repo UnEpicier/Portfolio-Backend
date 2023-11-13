@@ -24,7 +24,7 @@ const FormationSchema = new Schema({
 		default: new Date().getFullYear,
 	},
 	content: {
-		type: String,
+		type: Array<String>,
 		required: true,
 	},
 });
