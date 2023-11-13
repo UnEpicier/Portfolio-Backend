@@ -56,8 +56,6 @@ export async function dbRefreshProjects() {
 			visibility: 'public',
 		});
 
-		console.log('data: ', data);
-
 		data.map(async (repo) => {
 			await Project.create({
 				ownerName: repo.owner.login,
@@ -94,7 +92,8 @@ export async function dbRefreshProjects() {
 				};
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to refresh projects list.',
