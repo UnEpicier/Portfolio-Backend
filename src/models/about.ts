@@ -7,7 +7,7 @@ import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const AboutSchema = new Schema({
-	imagePath: {
+	image: {
 		type: String,
 		required: true,
 		default: 'https://placehold.co/600x600',
@@ -21,7 +21,7 @@ const AboutSchema = new Schema({
 const About = models.About || model('About', AboutSchema);
 
 export interface IAbout {
-	imagePath: string;
+	image: string;
 	description: string;
 }
 
