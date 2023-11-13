@@ -51,12 +51,20 @@ export async function postExperience(req: Request, res: Response) {
 		});
 	}
 
+	let parsedContent;
+	try {
+		parsedContent = JSON.parse(content);
+	} catch {
+		return res.status(500).json({
+			message: 'Failed to parse content field.',
+		});
+	}
 	const postedExperience = await dbPostExperience(
 		header,
 		society,
 		startedYear,
 		endedYear,
-		content,
+		parsedContent,
 	);
 
 	if (!postedExperience.success) {
@@ -88,13 +96,21 @@ export async function updateExperience(req: Request, res: Response) {
 		});
 	}
 
+	let parsedContent;
+	try {
+		parsedContent = JSON.parse(content);
+	} catch {
+		return res.status(500).json({
+			message: 'Failed to parse content field.',
+		});
+	}
 	const updatedExperience = await dbUpdateExperience(
 		id,
 		header,
 		society,
 		startedYear,
 		endedYear,
-		content,
+		parsedContent,
 	);
 
 	if (!updatedExperience.success) {

@@ -51,12 +51,20 @@ export async function postFormation(req: Request, res: Response) {
 		});
 	}
 
+	let parsedContent;
+	try {
+		parsedContent = JSON.parse(content);
+	} catch {
+		return res.status(500).json({
+			message: 'Failed to parse content field.',
+		});
+	}
 	const postedFormation = await dbPostFormation(
 		header,
 		school,
 		startedYear,
 		endedYear,
-		content,
+		parsedContent,
 	);
 
 	if (!postedFormation.success) {
@@ -88,13 +96,21 @@ export async function updateFormation(req: Request, res: Response) {
 		});
 	}
 
+	let parsedContent;
+	try {
+		parsedContent = JSON.parse(content);
+	} catch {
+		return res.status(500).json({
+			message: 'Failed to parse content field.',
+		});
+	}
 	const updatedFormation = await dbUpdateFormation(
 		id,
 		header,
 		school,
 		startedYear,
 		endedYear,
-		content,
+		parsedContent,
 	);
 
 	if (!updatedFormation.success) {

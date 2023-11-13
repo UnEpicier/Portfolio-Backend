@@ -33,7 +33,7 @@ export async function dbPostExperience(
 	society: string,
 	startedYear: string,
 	endedYear: string,
-	content: string,
+	content: Array<string>,
 ) {
 	try {
 		await connectToDB();
@@ -70,7 +70,7 @@ export async function dbUpdateExperience(
 	society: string,
 	startedYear: string,
 	endedYear: string | null,
-	content: string,
+	content: Array<string>,
 ) {
 	try {
 		await connectToDB();

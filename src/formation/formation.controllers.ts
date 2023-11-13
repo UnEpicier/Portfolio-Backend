@@ -28,7 +28,7 @@ export async function dbPostFormation(
 	school: string,
 	startedYear: string,
 	endedYear: string,
-	content: string,
+	content: Array<string>,
 ) {
 	try {
 		await connectToDB();
@@ -65,7 +65,7 @@ export async function dbUpdateFormation(
 	school: string,
 	startedYear: string,
 	endedYear: string | null,
-	content: string,
+	content: Array<string>,
 ) {
 	try {
 		await connectToDB();
