@@ -2,10 +2,10 @@
 	"name": "portfolio-backend",
 	"version": "0.0.0",
 	"description": "Back-end of my portfolio",
-	"main": "index.js",
+	"main": "dist/index.js",
 	"scripts": {
 		"dev": "nodemon --watch src -e js,ts,json --exec \"ts-node src/index.ts\"",
-		"build": "tsup src/index.ts --format cjs --clean",
+		"build": "npx tsup src/index.ts --format cjs --clean",
 		"start": "node dist/index.js"
 	},
 	"author": "Un Épicier",
