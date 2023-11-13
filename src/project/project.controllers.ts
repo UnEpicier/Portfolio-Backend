@@ -47,8 +47,6 @@ export async function dbRefreshProjects() {
 
 		Project.deleteMany({});
 
-		console.log(process.env.GITHUB_TOKEN);
-
 		const octokit = new Octokit({
 			auth: process.env.GITHUB_TOKEN,
 		});
@@ -57,6 +55,8 @@ export async function dbRefreshProjects() {
 			per_page: 100,
 			visibility: 'public',
 		});
+
+		console.log('data: ', data);
 
 		data.map(async (repo) => {
 			await Project.create({
