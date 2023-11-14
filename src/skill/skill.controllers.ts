@@ -15,7 +15,8 @@ export async function getDbSkills() {
 			success: true,
 			skills: await Skill.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get skills.',
@@ -35,7 +36,8 @@ export async function createDbSkill(name: string) {
 			success: true,
 			skill: await Skill.findOne({ name }),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to create skill.',
@@ -62,7 +64,8 @@ export async function updateDbSkill(oldName: string, name: string) {
 				name,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to update skill.',
@@ -81,7 +84,8 @@ export async function deleteDbSkill(name: string) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete skill.',

@@ -15,7 +15,8 @@ export async function dbGetMessages() {
 			success: true,
 			messages: await Message.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get messages.',
@@ -51,7 +52,8 @@ export async function dbPostMessage(
 				content,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to post message.',
@@ -70,7 +72,8 @@ export async function dbDeleteMessage(id: string) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete message.',

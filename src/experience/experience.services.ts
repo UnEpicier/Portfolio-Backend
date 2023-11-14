@@ -23,7 +23,7 @@ export async function getExperiences(_: Request, res: Response) {
 	const dbExperiences = await dbGetExperiences();
 
 	if (!dbExperiences.success) {
-		return res.status(500).json(dbExperiences.message);
+		return res.status(500).json({ message: dbExperiences.message });
 	}
 
 	return res.status(200).json(dbExperiences.experiences);
@@ -68,7 +68,7 @@ export async function postExperience(req: Request, res: Response) {
 	);
 
 	if (!postedExperience.success) {
-		return res.status(500).json(postedExperience.message);
+		return res.status(500).json({ message: postedExperience.message });
 	}
 
 	return res.status(200).json(postedExperience.experience);
@@ -114,7 +114,7 @@ export async function updateExperience(req: Request, res: Response) {
 	);
 
 	if (!updatedExperience.success) {
-		return res.status(500).json(updatedExperience.message);
+		return res.status(500).json({ message: updatedExperience.message });
 	}
 
 	return res.status(200).json(updatedExperience.experience);
@@ -145,7 +145,7 @@ export async function deleteExperience(req: Request, res: Response) {
 	const deletedExperience = await dbDeleteExperience(id);
 
 	if (!deletedExperience.success) {
-		return res.status(500).json(deletedExperience.message);
+		return res.status(500).json({ message: deletedExperience.message });
 	}
 
 	return res.status(200).end();

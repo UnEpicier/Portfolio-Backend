@@ -15,7 +15,8 @@ export async function dbGetFormations() {
 			success: true,
 			formations: await Formation.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get formations.',
@@ -51,7 +52,8 @@ export async function dbPostFormation(
 				content,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to create a formation.',
@@ -87,7 +89,8 @@ export async function dbUpdateFormation(
 			success: true,
 			formation: Formation.findById(id),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to edit formation.',
@@ -104,7 +107,8 @@ export async function dbDeleteFormation(id: number) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete formation.',

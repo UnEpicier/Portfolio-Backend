@@ -28,7 +28,8 @@ export async function dbGetUsers() {
 			success: true,
 			users: User.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get users.',
@@ -69,7 +70,8 @@ export async function dbSignIn(email: string, password: string) {
 			success: true,
 			token,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to authentificate user.',
@@ -88,7 +90,8 @@ export async function dbSignOut(token: string) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to sign out user.',
@@ -110,7 +113,8 @@ export async function dbSignUp(name: string, email: string, password: string) {
 			success: true,
 			user: await User.findOne({ name, email }),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to create a new account.',
@@ -133,7 +137,8 @@ export async function dbDeleteUser(id: string) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete account.',
@@ -180,7 +185,8 @@ export async function dbChangePassword(
 			success: true,
 			user: User.findOne({ _id: userInDB._id }),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to update user password.',
@@ -229,7 +235,8 @@ export async function dbChangeEmail(
 				_id: userInDB._id,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to update user email.',

@@ -20,7 +20,8 @@ export async function dbGetExperiences() {
 			success: true,
 			experiences: await Experience.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get experiences.',
@@ -56,7 +57,8 @@ export async function dbPostExperience(
 				content,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to create experience.',
@@ -92,7 +94,8 @@ export async function dbUpdateExperience(
 			success: true,
 			experience: await Experience.findById({ _id: id }),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to edit experience',
@@ -111,7 +114,8 @@ export async function dbDeleteExperience(id: number) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete experience.',

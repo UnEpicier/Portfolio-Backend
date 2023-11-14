@@ -22,18 +22,12 @@ export async function dbGetProjects() {
 
 		let projects: IProject[] = await Project.find({});
 
-		projects = projects.map((project) => {
-			return {
-				...project,
-				topics: (project.topics as string).split(',') ?? [],
-			};
-		});
-
 		return {
 			success: true,
 			projects,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get projects.',
@@ -112,7 +106,8 @@ export async function dbDeleteProject(id: number) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete project.',

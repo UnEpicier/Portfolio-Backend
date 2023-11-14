@@ -15,7 +15,8 @@ export async function dbGetAbout() {
 			success: true,
 			about: await About.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get about informations.',
@@ -38,7 +39,8 @@ export async function dbPutDescription(description: string) {
 			success: true,
 			about: await About.findOne({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to edit description.',
@@ -61,7 +63,8 @@ export async function dbPutImage(image: string) {
 			success: true,
 			about: await About.findOne({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to edit image path.',

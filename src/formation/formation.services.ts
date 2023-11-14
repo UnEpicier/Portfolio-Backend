@@ -23,7 +23,7 @@ export async function getFormations(req: Request, res: Response) {
 	const dbFormations = await dbGetFormations();
 
 	if (!dbFormations.success) {
-		return res.status(500).json(dbFormations.message);
+		return res.status(500).json({ message: dbFormations.message });
 	}
 
 	return res.status(200).json(dbFormations.formations);
@@ -68,7 +68,7 @@ export async function postFormation(req: Request, res: Response) {
 	);
 
 	if (!postedFormation.success) {
-		return res.status(500).json(postedFormation.message);
+		return res.status(500).json({ message: postedFormation.message });
 	}
 
 	return res.status(200).json(postedFormation.formation);
@@ -114,7 +114,7 @@ export async function updateFormation(req: Request, res: Response) {
 	);
 
 	if (!updatedFormation.success) {
-		return res.status(500).json(updatedFormation.message);
+		return res.status(500).json({ message: updatedFormation.message });
 	}
 
 	return res.status(200).json(updatedFormation.formation);
@@ -145,7 +145,7 @@ export async function deleteFormation(req: Request, res: Response) {
 	const deletedFormation = await dbDeleteFormation(id);
 
 	if (!deletedFormation.success) {
-		return res.status(500).json(deletedFormation.message);
+		return res.status(500).json({ message: deletedFormation.message });
 	}
 
 	return res.status(200).end();

@@ -22,7 +22,7 @@ export async function getProjects(req: Request, res: Response) {
 	const dbProjects = await dbGetProjects();
 
 	if (!dbProjects.success) {
-		return res.status(500).json(dbProjects.message);
+		return res.status(500).json({ message: dbProjects.message });
 	}
 
 	return res.status(200).json(dbProjects.projects);
@@ -46,7 +46,7 @@ export async function refreshProjects(req: Request, res: Response) {
 	const projectsRefreshed = await dbRefreshProjects();
 
 	if (!projectsRefreshed.success) {
-		return res.status(500).json(projectsRefreshed.message);
+		return res.status(500).json({ message: projectsRefreshed.message });
 	}
 
 	return res.status(200).json(projectsRefreshed.projects);
@@ -77,7 +77,7 @@ export async function deleteProject(req: Request, res: Response) {
 	const deletedProject = await dbDeleteProject(id);
 
 	if (deletedProject.success) {
-		return res.status(500).json(deletedProject.message);
+		return res.status(500).json({ message: deletedProject.message });
 	}
 
 	return res.status(200).end();

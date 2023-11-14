@@ -18,7 +18,7 @@ export async function getAbout(_: Request, res: Response) {
 	const dbAbout = await dbGetAbout();
 
 	if (!dbAbout.success) {
-		return res.status(500).json(dbAbout.message);
+		return res.status(500).json({ message: dbAbout.message });
 	}
 
 	return res.status(200).json(dbAbout.about);
@@ -49,7 +49,7 @@ export async function putDescription(req: Request, res: Response) {
 	const updatedDescription = await dbPutDescription(description);
 
 	if (!updatedDescription.success) {
-		return res.status(500).json(updatedDescription.message);
+		return res.status(500).json({ message: updatedDescription.message });
 	}
 
 	return res.status(200).json(updatedDescription.about);
@@ -80,7 +80,7 @@ export async function putImage(req: Request, res: Response) {
 	const updatedImage = await dbPutImage(image);
 
 	if (!updatedImage.success) {
-		return res.status(500).json(updatedImage.message);
+		return res.status(500).json({ message: updatedImage.message });
 	}
 
 	return res.status(200).json(updatedImage.about);

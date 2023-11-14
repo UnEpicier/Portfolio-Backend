@@ -55,7 +55,7 @@ export async function getUsers(req: Request, res: Response) {
 	const dbUsers = await dbGetUsers();
 
 	if (!dbUsers.success) {
-		return res.status(500).json(dbUsers.message);
+		return res.status(500).json({ message: dbUsers.message });
 	}
 
 	return res.status(200).json(dbUsers.users);
@@ -80,7 +80,7 @@ export async function signIn(req: Request, res: Response) {
 	const signedIn = await dbSignIn(email, password);
 
 	if (!signedIn.success) {
-		return res.status(500).json(signedIn.message);
+		return res.status(500).json({ message: signedIn.message });
 	}
 
 	return res.status(200).json(signedIn.token);
@@ -104,7 +104,7 @@ export async function signOut(req: Request, res: Response) {
 	const signedOut = await dbSignOut(token);
 
 	if (!signedOut.success) {
-		return res.status(500).json(signedOut.message);
+		return res.status(500).json({ message: signedOut.message });
 	}
 
 	return res.status(200).end();
@@ -138,7 +138,7 @@ export async function signUp(req: Request, res: Response) {
 	const createdAccount = await dbSignUp(name, email, password);
 
 	if (!createdAccount.success) {
-		return res.status(500).json(createdAccount.message);
+		return res.status(500).json({ message: createdAccount.message });
 	}
 
 	return res.status(200).json(createdAccount.user);
@@ -172,7 +172,7 @@ export async function deletedAccount(req: Request, res: Response) {
 	const deletedAccount = await dbDeleteUser(id);
 
 	if (!deletedAccount.success) {
-		return res.status(500).json(deletedAccount.message);
+		return res.status(500).json({ message: deletedAccount.message });
 	}
 
 	return res.status(200).end();
@@ -210,7 +210,7 @@ export async function changePassword(req: Request, res: Response) {
 	);
 
 	if (!changedPassword.success) {
-		return res.status(500).json(changedPassword.message);
+		return res.status(500).json({ message: changedPassword.message });
 	}
 
 	return res.status(200).json(changedPassword.user);
@@ -244,7 +244,7 @@ export async function changeEmail(req: Request, res: Response) {
 	const changedEmail = await dbChangeEmail(token, oldEmail, email);
 
 	if (!changedEmail.success) {
-		return res.status(500).json(changedEmail.message);
+		return res.status(500).json({ message: changedEmail.message });
 	}
 
 	return res.status(200).json(changedEmail.user);

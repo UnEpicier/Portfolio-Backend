@@ -15,7 +15,8 @@ export async function dbGetLinks() {
 			success: true,
 			links: await Link.find({}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to get links.',
@@ -48,7 +49,8 @@ export async function dbCreateLink(
 				link,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to create link.',
@@ -86,7 +88,8 @@ export async function dbUpdateLink(
 				link,
 			}),
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to edit link.',
@@ -105,7 +108,8 @@ export async function dbDeleteLink(id: number) {
 		return {
 			success: true,
 		};
-	} catch {
+	} catch (error) {
+		console.error(error);
 		return {
 			success: false,
 			message: 'Failed to delete link.',

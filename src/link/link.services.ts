@@ -23,7 +23,7 @@ export async function getLinks(_: Request, res: Response) {
 	const dbLinks = await dbGetLinks();
 
 	if (!dbLinks.success) {
-		return res.status(500).json(dbLinks.message);
+		return res.status(500).json({ message: dbLinks.message });
 	}
 
 	return res.status(200).json(dbLinks.links);
@@ -54,7 +54,7 @@ export async function createLink(req: Request, res: Response) {
 	const createdLink = await dbCreateLink(name, icon, color, link);
 
 	if (!createdLink.success) {
-		return res.status(500).json(createdLink.message);
+		return res.status(500).json({ message: createdLink.message });
 	}
 
 	return res.status(200).json(createdLink.link);
@@ -85,7 +85,7 @@ export async function updateLink(req: Request, res: Response) {
 	const updatedLink = await dbUpdateLink(name, icon, color, link);
 
 	if (!updatedLink.success) {
-		return res.status(500).json(updatedLink.message);
+		return res.status(500).json({ message: updatedLink.message });
 	}
 
 	return res.status(200).json(updatedLink.link);
@@ -116,7 +116,7 @@ export async function deleteLink(req: Request, res: Response) {
 	const deletedLink = await dbDeleteLink(id);
 
 	if (!deletedLink.success) {
-		return res.status(500).json(deletedLink.message);
+		return res.status(500).json({ message: deletedLink.message });
 	}
 
 	return res.status(200).end();

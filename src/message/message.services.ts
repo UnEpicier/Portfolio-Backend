@@ -36,7 +36,7 @@ export async function getMessages(req: Request, res: Response) {
 	const dbMessages = await dbGetMessages();
 
 	if (!dbMessages.success) {
-		return res.status(500).json(dbMessages.message);
+		return res.status(500).json({ message: dbMessages.message });
 	}
 
 	return res.status(200).json(dbMessages.messages);
@@ -60,7 +60,7 @@ export async function postMessage(req: Request, res: Response) {
 	);
 
 	if (!createdMessage.success) {
-		return res.status(500).json(createdMessage.message);
+		return res.status(500).json({ message: createdMessage.message });
 	}
 
 	return res.status(200).json(createdMessage.message);
@@ -91,7 +91,7 @@ export async function deleteMessage(req: Request, res: Response) {
 	const deletedMessage = await dbDeleteMessage(id);
 
 	if (!deletedMessage.success) {
-		return res.status(500).json(deletedMessage.message);
+		return res.status(500).json({ message: deletedMessage.message });
 	}
 
 	return res.status(200).end();
