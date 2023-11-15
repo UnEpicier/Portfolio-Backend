@@ -3,8 +3,7 @@ FROM node:18-alpine as base
 WORKDIR /src
 COPY package*.json ./
 
-ENV PORT=3000
-EXPOSE ${PORT}
+EXPOSE 3000
 
 ENV NODE_ENV=production
 RUN npm ci
