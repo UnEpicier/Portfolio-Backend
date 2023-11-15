@@ -1,30 +1,19 @@
 name: Deploy backend to VPS
 
-on: [push]
+on:
+  push:
+    branches: [ master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-    
-    - name: Copy repository contents via scp
-      uses: appleboy/scp-action@master
-      env:
-        HOST: ${{ secrets.HOST }}
-        PORT: ${{ secrets.PORT }}
-        USERNAME: ${{ secrets.USERNAME }}
-        KEY: ${{ secrets.SSHKEY }}
-      with:
-        source: "."
-        target: "/home/backend"
-
-    - name: Executing remote command
+    - name: Deploy using ssh
       uses: appleboy/ssh-action@master
       with:
-        HOST: ${{ secrets.HOST }}
-        PORT: ${{ secrets.PORT }}
-        USERNAME: ${{ secrets.USERNAME }}
-        KEY: ${{ secrets.SSHKEY }}
+        host: ${{ secrets.HOST }}
+        port: ${{ secrets.PORT }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSHKEY }}
         script: /home/backend/start.sh
