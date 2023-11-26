@@ -34,7 +34,7 @@ export const getCategories = async (req: Request, res: Response) => {
 };
 
 export const getPosts = async (req: Request, res: Response) => {
-	const { category } = req.body;
+	const { category } = req.query as { category: string };
 
 	if (!category) {
 		return res.status(401).json({
