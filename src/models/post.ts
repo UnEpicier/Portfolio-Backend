@@ -7,7 +7,7 @@ import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const PostSchema = new Schema({
-	name: {
+	title: {
 		type: String,
 		required: true,
 	},
