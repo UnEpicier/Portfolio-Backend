@@ -26,7 +26,7 @@ export async function dbGetUsers() {
 
 		return {
 			success: true,
-			users: User.find({}),
+			users: await User.find({}),
 		};
 	} catch (error) {
 		console.error(error);
