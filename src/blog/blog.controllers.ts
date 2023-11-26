@@ -30,13 +30,15 @@ export const dbGetCategories = async () => {
 	}
 };
 
-export const dbGetPosts = async () => {
+export const dbGetPosts = async (categoryId: string) => {
 	try {
 		await connectToDB();
 
 		return {
 			success: true,
-			posts: await Post.find({}),
+			posts: await Post.find({
+				category: categoryId,
+			}),
 		};
 	} catch (error) {
 		console.error(error);

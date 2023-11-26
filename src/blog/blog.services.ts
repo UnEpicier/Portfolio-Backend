@@ -34,7 +34,15 @@ export const getCategories = async (req: Request, res: Response) => {
 };
 
 export const getPosts = async (req: Request, res: Response) => {
-	const dbPosts = await dbGetPosts();
+	const { category } = req.body;
+
+	if (!category) {
+		return res.status(401).json({
+			message: 'One parameter is missing in request body.',
+		});
+	}
+
+	const dbPosts = await dbGetPosts(category);
 
 	if (!dbPosts.success) {
 		return res.status(500).json({ message: dbPosts.message });
