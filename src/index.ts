@@ -32,6 +32,7 @@ import project from './project/project.routes';
 import about from './about/about.routes';
 import experience from './experience/experience.routes';
 import formation from './formation/formation.routes';
+import blog from './blog/blog.routes';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/', project);
 app.use('/', about);
 app.use('/', experience);
 app.use('/', formation);
+app.use('/', blog);
 
 app.listen(process.env.PORT, () => {
 	console.log(`Server is running on port ${process.env.PORT}`);
