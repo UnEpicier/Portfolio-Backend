@@ -6,28 +6,33 @@
 import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-const MessageSchema = new Schema({
-	firstname: {
-		type: String,
-		required: true,
+const MessageSchema = new Schema(
+	{
+		firstname: {
+			type: String,
+			required: true,
+		},
+		lastname: {
+			type: String,
+			required: true,
+		},
+		email: {
+			type: String,
+			required: true,
+		},
+		header: {
+			type: String,
+			required: true,
+		},
+		content: {
+			type: String,
+			required: true,
+		},
 	},
-	lastname: {
-		type: String,
-		required: true,
+	{
+		timestamps: true,
 	},
-	email: {
-		type: String,
-		required: true,
-	},
-	header: {
-		type: String,
-		required: true,
-	},
-	content: {
-		type: String,
-		required: true,
-	},
-});
+);
 
 const Message = models.Message || model('Message', MessageSchema);
 
@@ -37,6 +42,8 @@ export interface IMessage {
 	email: string;
 	header: string;
 	content: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 export default Message;

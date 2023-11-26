@@ -6,27 +6,35 @@
 import { Schema, model, models } from 'mongoose';
 // ---------------------------------------------------------------------------------------------------------------------
 
-const PostSchema = new Schema({
-	title: {
-		type: String,
-		required: true,
+const PostSchema = new Schema(
+	{
+		title: {
+			type: String,
+			required: true,
+		},
+		content: {
+			type: String,
+			required: true,
+		},
+		category: {
+			type: Schema.Types.ObjectId,
+			ref: 'Category',
+			required: true,
+		},
 	},
-	content: {
-		type: String,
-		required: true,
+	{
+		timestamps: true,
 	},
-	category: {
-		type: Schema.Types.ObjectId,
-		ref: 'Category',
-		required: true,
-	},
-});
+);
 
 const Post = models.Post || model('Post', PostSchema);
 
 export interface Post {
 	name: string;
 	content: string;
+	category: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 export default Post;
