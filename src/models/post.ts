@@ -13,7 +13,7 @@ const PostSchema = new Schema(
 			required: true,
 		},
 		content: {
-			type: String,
+			type: Object,
 			required: true,
 		},
 		category: {
@@ -31,7 +31,7 @@ const Post = models.Post || model('Post', PostSchema);
 
 export interface Post {
 	name: string;
-	content: string;
+	content: Object;
 	category: string;
 	createdAt: Date;
 	updatedAt: Date;
