@@ -34,11 +34,17 @@ export const dbGetPosts = async (categoryId: string) => {
 	try {
 		await connectToDB();
 
+		const posts = (
+			await Post.find({
+				category: categoryId,
+			})
+		).sort((a, b) => {
+			return b.createdAt.getTime() - a.createdAt.getTime();
+		});
+
 		return {
 			success: true,
-			posts: await Post.find({
-				category: categoryId,
-			}),
+			posts: posts,
 		};
 	} catch (error) {
 		console.error(error);
