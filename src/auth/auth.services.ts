@@ -83,7 +83,7 @@ export async function signIn(req: Request, res: Response) {
 		return res.status(500).json({ message: signedIn.message });
 	}
 
-	return res.status(200).json(signedIn.token);
+	return res.status(200).json({ token: signedIn.token });
 }
 
 export async function signOut(req: Request, res: Response) {

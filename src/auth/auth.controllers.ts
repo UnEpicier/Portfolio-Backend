@@ -172,7 +172,7 @@ export async function dbChangePassword(
 			};
 		}
 
-		User.updateOne(
+		await User.updateOne(
 			{
 				_id: userInDB._id,
 			},
@@ -183,7 +183,7 @@ export async function dbChangePassword(
 
 		return {
 			success: true,
-			user: User.findOne({ _id: userInDB._id }),
+			user: await User.findOne({ _id: userInDB._id }),
 		};
 	} catch (error) {
 		console.error(error);
@@ -220,7 +220,7 @@ export async function dbChangeEmail(
 			};
 		}
 
-		User.updateOne(
+		await User.updateOne(
 			{
 				_id: userInDB._id,
 			},
@@ -231,7 +231,7 @@ export async function dbChangeEmail(
 
 		return {
 			success: true,
-			user: User.findOne({
+			user: await User.findOne({
 				_id: userInDB._id,
 			}),
 		};
