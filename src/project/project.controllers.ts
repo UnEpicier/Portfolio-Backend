@@ -9,7 +9,7 @@ dotenv.config();
 
 // ---------------------------------------------------- Mongoose -------------------------------------------------------
 import { connectToDB } from 'src/utils/database';
-import Project, { IProject } from 'src/models/project';
+import Project from 'src/models/project';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------- Octokit -------------------------------------------------------
@@ -20,7 +20,7 @@ export async function dbGetProjects() {
 	try {
 		await connectToDB();
 
-		let projects: IProject[] = await Project.find({});
+		const projects = await Project.find({}).sort({ updatedAt: -1 });
 
 		return {
 			success: true,
@@ -39,7 +39,7 @@ export async function dbRefreshProjects() {
 	try {
 		await connectToDB();
 
-		Project.deleteMany({});
+		await Project.deleteMany({});
 
 		const octokit = new Octokit({
 			auth: process.env.GITHUB_TOKEN,
@@ -99,7 +99,7 @@ export async function dbDeleteProject(id: number) {
 	try {
 		await connectToDB();
 
-		Project.deleteOne({
+		await Project.deleteOne({
 			_id: id,
 		});
 
