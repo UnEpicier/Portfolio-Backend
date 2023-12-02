@@ -106,7 +106,7 @@ export const dbPostPost = async (
 				title,
 				content,
 				category,
-			}),
+			}).populate('category'),
 		};
 	} catch (error) {
 		console.error(error);
@@ -176,7 +176,7 @@ export const dbUpdatePost = async (
 			success: true,
 			post: await Post.findOne({
 				_id: id,
-			}),
+			}).populate('category'),
 		};
 	} catch (error) {
 		console.error(error);
