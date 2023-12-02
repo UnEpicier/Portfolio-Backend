@@ -37,7 +37,7 @@ export const dbGetPosts = async (categoryId: string) => {
 		const posts = (
 			await Post.find({
 				category: categoryId,
-			})
+			}).populate('category')
 		).sort((a, b) => {
 			return b.createdAt.getTime() - a.createdAt.getTime();
 		});
