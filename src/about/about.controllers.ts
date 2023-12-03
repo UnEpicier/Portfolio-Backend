@@ -13,7 +13,7 @@ export async function dbGetAbout() {
 
 		return {
 			success: true,
-			about: await About.find({}),
+			about: await About.findOne({}),
 		};
 	} catch (error) {
 		console.error(error);
