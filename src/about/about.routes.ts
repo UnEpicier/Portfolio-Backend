@@ -6,6 +6,13 @@
 import { Router } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
+// --------------------------------------------------- Middleware ------------------------------------------------------
+import multer from 'multer';
+const upload = multer({
+	storage: multer.memoryStorage(),
+});
+// ---------------------------------------------------------------------------------------------------------------------
+
 // ---------------------------------------------------- Services -------------------------------------------------------
 import { getAbout, putDescription, putImage } from './about.services';
 // ---------------------------------------------------------------------------------------------------------------------
@@ -20,7 +27,7 @@ router.put('/about/description', async (req, res) => {
 	await putDescription(req, res);
 });
 
-router.put('/about/image', async (req, res) => {
+router.put('/about/image', upload.single('file'), async (req, res) => {
 	await putImage(req, res);
 });
 

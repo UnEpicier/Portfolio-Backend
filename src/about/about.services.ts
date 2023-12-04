@@ -57,7 +57,7 @@ export async function putDescription(req: Request, res: Response) {
 
 export async function putImage(req: Request, res: Response) {
 	const token = req.headers.authorization;
-	const { image } = req.body;
+	const image = req.file;
 
 	if (!token) {
 		return res.status(401).json({
@@ -77,7 +77,7 @@ export async function putImage(req: Request, res: Response) {
 		});
 	}
 
-	const updatedImage = await dbPutImage(image);
+	const updatedImage = await dbPutImage(image.buffer.toString('base64'));
 
 	if (!updatedImage.success) {
 		return res.status(500).json({ message: updatedImage.message });
