@@ -93,7 +93,7 @@ export async function updateSkill(req: Request, res: Response) {
 
 export async function deleteSkill(req: Request, res: Response) {
 	const token = req.headers.authorization;
-	const { name } = req.body;
+	const { id } = req.body;
 
 	if (!token) {
 		return res.status(401).json({
@@ -103,17 +103,17 @@ export async function deleteSkill(req: Request, res: Response) {
 
 	if (!(await verifyToken(token))) {
 		return res.status(404).json({
-			message: 'Provided token not found.',
+			message: 'Invalid authorization token.',
 		});
 	}
 
-	if (!name) {
+	if (!id) {
 		return res.status(400).json({
-			message: 'Name field is missing in request body.',
+			message: 'One parameter is missing in request body.',
 		});
 	}
 
-	const deletedSkill = await deleteDbSkill(name);
+	const deletedSkill = await deleteDbSkill(id);
 
 	if (!deletedSkill.success) {
 		return res.status(500).json({ message: deletedSkill.message });

@@ -73,12 +73,12 @@ export async function updateDbSkill(oldName: string, name: string) {
 	}
 }
 
-export async function deleteDbSkill(name: string) {
+export async function deleteDbSkill(id: string) {
 	try {
 		await connectToDB();
 
 		await Skill.deleteOne({
-			name,
+			_id: id,
 		});
 
 		return {
