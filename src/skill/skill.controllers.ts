@@ -45,13 +45,13 @@ export async function createDbSkill(name: string) {
 	}
 }
 
-export async function updateDbSkill(oldName: string, name: string) {
+export async function updateDbSkill(id: string, name: string) {
 	try {
 		await connectToDB();
 
 		await Skill.updateOne(
 			{
-				name: oldName,
+				_id: id,
 			},
 			{
 				name: name,

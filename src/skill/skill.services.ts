@@ -47,7 +47,7 @@ export async function createSkill(req: Request, res: Response) {
 
 	if (!name) {
 		return res.status(400).json({
-			message: 'Name field is missing in request body.',
+			message: 'One parameter missing in request body.',
 		});
 	}
 
@@ -62,7 +62,7 @@ export async function createSkill(req: Request, res: Response) {
 
 export async function updateSkill(req: Request, res: Response) {
 	const token = req.headers.authorization;
-	const { oldName, name } = req.body;
+	const { id, name } = req.body;
 
 	if (!token) {
 		return res.status(401).json({
@@ -76,13 +76,13 @@ export async function updateSkill(req: Request, res: Response) {
 		});
 	}
 
-	if (!oldName || !name) {
+	if (!id || !name) {
 		return res.status(400).json({
-			message: 'Either name or oldName field is missing in request body.',
+			message: 'One or multiple parameters is missing in request body.',
 		});
 	}
 
-	const updatedSkill = await updateDbSkill(oldName, name);
+	const updatedSkill = await updateDbSkill(id, name);
 
 	if (!updatedSkill.success) {
 		return res.status(500).json({ message: updatedSkill.message });
