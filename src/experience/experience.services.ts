@@ -82,7 +82,7 @@ export async function updateExperience(req: Request, res: Response) {
 		});
 	}
 
-	if (!id || !header || !society || !startedYear || !endedYear || !content) {
+	if (!id || !header || !society || !startedYear || !content) {
 		return res.status(401).json({
 			message: 'One or multiple parameters is missing in request body.',
 		});

@@ -33,7 +33,7 @@ export async function dbPostExperience(
 	header: string,
 	society: string,
 	startedYear: string,
-	endedYear: string,
+	endedYear: string | null,
 	content: Array<string>,
 ) {
 	try {
