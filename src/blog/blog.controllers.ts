@@ -30,6 +30,23 @@ export const dbGetCategories = async () => {
 	}
 };
 
+export const dbGetCategory = async (categoryId: string) => {
+	try {
+		await connectToDB();
+
+		return {
+			sucess: true,
+			category: await Category.findById(categoryId),
+		};
+	} catch (error) {
+		console.error(error);
+		return {
+			success: false,
+			message: 'Failed to get category.',
+		};
+	}
+};
+
 export const dbGetPosts = async (categoryId: string) => {
 	try {
 		await connectToDB();
@@ -51,6 +68,25 @@ export const dbGetPosts = async (categoryId: string) => {
 		return {
 			success: false,
 			message: 'Failed to get posts.',
+		};
+	}
+};
+
+export const dbGetPost = async (postId: string) => {
+	try {
+		await connectToDB();
+
+		const post = await Post.findById(postId).populate('category');
+
+		return {
+			success: true,
+			post: post,
+		};
+	} catch (error) {
+		console.error(error);
+		return {
+			success: false,
+			message: 'Failed to get post.',
 		};
 	}
 };

@@ -9,7 +9,9 @@ import { Request, Response } from 'express';
 // --------------------------------------------------- Controllers -----------------------------------------------------
 import {
 	dbGetCategories,
+	dbGetCategory,
 	dbGetPosts,
+	dbGetPost,
 	dbPostCategory,
 	dbPostPost,
 	dbUpdateCategory,
@@ -33,6 +35,24 @@ export const getCategories = async (req: Request, res: Response) => {
 	return res.status(200).json(dbCategories.categories);
 };
 
+export const getCategory = async (req: Request, res: Response) => {
+	const { categoryId } = req.body;
+
+	if (!categoryId) {
+		return res.status(401).json({
+			message: 'One parameter is missing in request body.',
+		});
+	}
+
+	const dbCategory = await dbGetCategory(categoryId);
+
+	if (!dbCategory.success) {
+		return res.status(500).json({ message: dbCategory.message });
+	}
+
+	return res.status(200).json(dbCategory.category);
+};
+
 export const getPosts = async (req: Request, res: Response) => {
 	const { category } = req.query as { category: string };
 
@@ -49,6 +69,26 @@ export const getPosts = async (req: Request, res: Response) => {
 	}
 
 	return res.status(200).json(dbPosts.posts);
+};
+
+export const getPost = async (req: Request, res: Response) => {
+	const { postId } = req.query as { postId: string };
+
+	if (!postId) {
+		return res.status(401).json({
+			message: 'One parameter is missing in request body.',
+		});
+	}
+
+	const dbPost = await dbGetPost(postId);
+
+	if (!dbPost.success) {
+		return res.status(500).json({
+			message: dbPost.message,
+		});
+	}
+
+	return res.status(200).json(dbPost.post);
 };
 
 export const postCategory = async (req: Request, res: Response) => {

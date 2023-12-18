@@ -8,7 +8,9 @@ import { Router } from 'express';
 
 import {
 	getCategories,
+	getCategory,
 	getPosts,
+	getPost,
 	postCategory,
 	postPost,
 	putCategory,
@@ -23,8 +25,16 @@ router.get('/blog/categories', async (req, res) => {
 	await getCategories(req, res);
 });
 
+router.get('/blog/category', async (req, res) => {
+	await getCategory(req, res);
+});
+
 router.get('/blog/posts', async (req, res) => {
 	await getPosts(req, res);
+});
+
+router.get('/blog/post', async (req, res) => {
+	await getPost(req, res);
 });
 
 router.post('/blog/category', async (req, res) => {
