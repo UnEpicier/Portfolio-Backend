@@ -15,12 +15,12 @@ config();
 const baseUrl = process.env.BASE_URL;
 
 let token = '';
-let linkId = '';
+let skillId = '';
 
 // ----------------------------------------------------- Public --------------------------------------------------------
-describe('I. Public - Links', () => {
-	it('1.01 GET     - links', async () => {
-		const response = await request(baseUrl).get('/links');
+describe('I. Public - Skills', () => {
+	it('1.01 GET     - skills', async () => {
+		const response = await request(baseUrl).get('/skills');
 
 		expect(response.statusCode).toBe(200);
 	});
@@ -41,16 +41,16 @@ describe('I.I Sign in', () => {
 });
 
 // --------------------------------------------------- Create link -----------------------------------------------------
-describe('II. Create Link', () => {
+describe('II. Create Skill', () => {
 	it('2.01 POST    - Any token', async () => {
-		const response = await request(baseUrl).post('/link');
+		const response = await request(baseUrl).post('/skill');
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('2.02 POST    - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.post('/link')
+			.post('/skill')
 			.set('Authorization', 'notAGoodToken');
 
 		expect(response.statusCode).toBe(404);
@@ -58,40 +58,37 @@ describe('II. Create Link', () => {
 
 	it('2.03 POST    - Missing body fields', async () => {
 		const response = await request(baseUrl)
-			.post('/link')
+			.post('/skill')
 			.set('Authorization', token);
 
 		expect(response.statusCode).toBe(400);
 	});
 
-	it('2.04 POST    - Create link', async () => {
+	it('2.04 POST    - Create skill', async () => {
 		const response = await request(baseUrl)
-			.post('/link')
+			.post('/skill')
 			.set('Authorization', token)
 			.send({
-				name: 'TestLink',
-				icon: 'testOutline',
-				color: '#ffffff',
-				link: 'https://www.google.fr/',
+				name: 'TestSkill',
 			});
 
 		expect(response.statusCode).toBe(200);
 
-		linkId = response.body._id;
+		skillId = response.body._id;
 	});
 });
 
 // --------------------------------------------------- Update link -----------------------------------------------------
-describe('III. Update Link', () => {
+describe('III. Update Skill', () => {
 	it('3.01 PUT     - Any token', async () => {
-		const response = await request(baseUrl).put('/link');
+		const response = await request(baseUrl).put('/skill');
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('3.02 PUT     - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put('/skill')
 			.set('Authorization', 'notAGoodToken');
 
 		expect(response.statusCode).toBe(404);
@@ -99,21 +96,19 @@ describe('III. Update Link', () => {
 
 	it('3.03 PUT     - Missing body fields', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put('/skill')
 			.set('Authorization', token);
 
 		expect(response.statusCode).toBe(400);
 	});
 
-	it('3.04 PUT     - Update link', async () => {
+	it('3.04 PUT     - Update skill', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put('/skill')
 			.set('Authorization', token)
 			.send({
-				name: 'TestLink1',
-				icon: 'testOutline',
-				color: '#ffffff',
-				link: 'https://www.google.fr/',
+				id: skillId,
+				name: 'TestSkill1',
 			});
 
 		expect(response.statusCode).toBe(200);
@@ -121,16 +116,16 @@ describe('III. Update Link', () => {
 });
 
 // --------------------------------------------------- Delete link -----------------------------------------------------
-describe('IV. Delete Link', () => {
+describe('IV. Delete Skill', () => {
 	it('4.01 DELETE     - Any token', async () => {
-		const response = await request(baseUrl).delete('/link');
+		const response = await request(baseUrl).delete('/skill');
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('4.02 DELETE     - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.delete('/link')
+			.delete('/skill')
 			.set('Authorization', 'notAGoodToken');
 
 		expect(response.statusCode).toBe(404);
@@ -138,18 +133,18 @@ describe('IV. Delete Link', () => {
 
 	it('4.03 DELETE     - Missing body fields', async () => {
 		const response = await request(baseUrl)
-			.delete('/link')
+			.delete('/skill')
 			.set('Authorization', token);
 
 		expect(response.statusCode).toBe(400);
 	});
 
-	it('4.04 DELETE     - Delete link', async () => {
+	it('4.04 DELETE     - Delete skill', async () => {
 		const response = await request(baseUrl)
-			.delete('/link')
+			.delete('/skill')
 			.set('Authorization', token)
 			.send({
-				id: linkId,
+				id: skillId,
 			});
 
 		expect(response.statusCode).toBe(200);
