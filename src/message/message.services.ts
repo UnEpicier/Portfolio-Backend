@@ -22,9 +22,9 @@ export async function getMessages(req: Request, res: Response) {
 	const token = req.headers.authorization;
 
 	if (!token) {
-		return {
+		return res.status(401).json({
 			message: 'A valid token is required to get messages.',
-		};
+		});
 	}
 
 	if (!(await verifyToken(token))) {
