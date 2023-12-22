@@ -185,7 +185,7 @@ export async function changePassword(req: Request, res: Response) {
 	if (!token) {
 		return res.status(401).json({
 			success: false,
-			message: 'A valid token is required to change the password',
+			message: 'A valid token is required to create a new account.',
 		});
 	}
 

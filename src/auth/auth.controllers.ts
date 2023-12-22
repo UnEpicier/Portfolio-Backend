@@ -131,7 +131,7 @@ export async function dbDeleteUser(id: string) {
 		});
 
 		await Token.deleteMany({
-			_id: id,
+			userId: id,
 		});
 
 		return {
@@ -154,7 +154,7 @@ export async function dbChangePassword(
 	try {
 		await connectToDB();
 
-		const userInDB = await Token.findOne({
+		const { userId: userInDB } = await Token.findOne({
 			token,
 		}).populate('userId');
 
@@ -202,7 +202,7 @@ export async function dbChangeEmail(
 	try {
 		await connectToDB();
 
-		const userInDB = await Token.findOne({
+		const { userId: userInDB } = await Token.findOne({
 			token,
 		}).populate('userId');
 
