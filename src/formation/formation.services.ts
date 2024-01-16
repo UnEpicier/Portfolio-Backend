@@ -2,151 +2,104 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- Express -------------------------------------------------------
-import { Request, Response } from 'express';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Formation, { IFormation } from 'src/models/formation';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// --------------------------------------------------- Controllers -----------------------------------------------------
-import {
-	dbGetFormations,
-	dbPostFormation,
+const getFormationsInDB = async (): Promise<IFormation[]> => {
+	try {
+		await connectToDB();
+
+		return await Formation.find({});
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to get formations.');
+	}
+};
+
+const createFormationInDB = async (
+	header: string,
+	school: string,
+	startedYear: string,
+	endedYear: string,
+	content: Array<string>,
+): Promise<IFormation | null> => {
+	try {
+		await connectToDB();
+
+		await Formation.create({
+			header,
+			school,
+			startedYear,
+			endedYear,
+			content,
+		});
+
+		return await Formation.findOne({
+			header,
+			school,
+			startedYear,
+			endedYear,
+			content,
+		});
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to create a new formation');
+	}
+};
+
+const dbUpdateFormation = async (
+	id: string,
+	header: string,
+	school: string,
+	startedYear: string,
+	endedYear: string | null,
+	content: Array<string>,
+): Promise<IFormation | null> => {
+	try {
+		await connectToDB();
+
+		await Formation.updateOne(
+			{
+				_id: id,
+			},
+			{
+				header,
+				school,
+				startedYear,
+				endedYear,
+				content,
+			},
+		);
+
+		return await Formation.findById(id);
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to update formation');
+	}
+};
+
+const dbDeleteFormation = async (id: string): Promise<void> => {
+	try {
+		await connectToDB();
+
+		await Formation.deleteOne({ _id: id });
+
+		return;
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to delete formation');
+	}
+};
+
+export {
+	getFormationsInDB,
+	createFormationInDB,
 	dbUpdateFormation,
 	dbDeleteFormation,
-} from './formation.controllers';
-// ---------------------------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------ Utils --------------------------------------------------------
-import { verifyToken } from '../utils/auth';
-// ---------------------------------------------------------------------------------------------------------------------
-
-export async function getFormations(req: Request, res: Response) {
-	const dbFormations = await dbGetFormations();
-
-	if (!dbFormations.success) {
-		return res.status(500).json({ message: dbFormations.message });
-	}
-
-	return res.status(200).json(dbFormations.formations);
-}
-
-export async function postFormation(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { header, school, startedYear, endedYear, content } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to post an experience.',
-		});
-	}
-
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Provided token not found',
-		});
-	}
-
-	if (!header || !school || !startedYear || !content) {
-		return res.status(401).json({
-			message: 'One or multiple parameters is missing in request body.',
-		});
-	}
-
-	let parsedContent;
-	try {
-		parsedContent = JSON.parse(content);
-	} catch {
-		return res.status(500).json({
-			message: 'Failed to parse content field.',
-		});
-	}
-	const postedFormation = await dbPostFormation(
-		header,
-		school,
-		startedYear,
-		endedYear,
-		parsedContent,
-	);
-
-	if (!postedFormation.success) {
-		return res.status(500).json({ message: postedFormation.message });
-	}
-
-	return res.status(200).json(postedFormation.formation);
-}
-
-export async function updateFormation(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { id, header, school, startedYear, endedYear, content } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to update an experience.',
-		});
-	}
-
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Provided token not found',
-		});
-	}
-
-	if (!id || !header || !school || !startedYear || !endedYear || !content) {
-		return res.status(401).json({
-			message: 'One or multiple parameters is missing in request body.',
-		});
-	}
-
-	let parsedContent;
-	try {
-		parsedContent = JSON.parse(content);
-	} catch {
-		return res.status(500).json({
-			message: 'Failed to parse content field.',
-		});
-	}
-	const updatedFormation = await dbUpdateFormation(
-		id,
-		header,
-		school,
-		startedYear,
-		endedYear,
-		parsedContent,
-	);
-
-	if (!updatedFormation.success) {
-		return res.status(500).json({ message: updatedFormation.message });
-	}
-
-	return res.status(200).json(updatedFormation.formation);
-}
-
-export async function deleteFormation(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { id } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to delete an experience.',
-		});
-	}
-
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Provided token not found.',
-		});
-	}
-
-	if (!id) {
-		return res.status(401).json({
-			message: 'One parameter is missing in request body.',
-		});
-	}
-
-	const deletedFormation = await dbDeleteFormation(id);
-
-	if (!deletedFormation.success) {
-		return res.status(500).json({ message: deletedFormation.message });
-	}
-
-	return res.status(200).end();
-}
+};

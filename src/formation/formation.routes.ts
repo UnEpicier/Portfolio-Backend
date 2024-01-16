@@ -8,25 +8,17 @@ import {
 	postFormation,
 	updateFormation,
 	deleteFormation,
-} from './formation.services';
+} from './formation.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
 
-router.get('/formations', async (req, res) => {
-	await getFormations(req, res);
-});
+router.get('/formations', getFormations);
 
-router.post('/formation', async (req, res) => {
-	await postFormation(req, res);
-});
+router.post('/formation', postFormation);
 
-router.put('/formation', async (req, res) => {
-	await updateFormation(req, res);
-});
+router.put('/formation/:id', updateFormation);
 
-router.delete('/formation', async (req, res) => {
-	await deleteFormation(req, res);
-});
+router.delete('/formation/:id', deleteFormation);
 
 export default router;
