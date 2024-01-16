@@ -2,122 +2,96 @@
 //!                                                       Imports
 // ---------------------------------------------------------------------------------------------------------------------
 
-// ----------------------------------------------------- Express -------------------------------------------------------
-import { Request, Response } from 'express';
+// ---------------------------------------------------- Mongoose -------------------------------------------------------
+import { connectToDB } from 'src/utils/database';
+import Link, { ILink } from 'src/models/link';
 // ---------------------------------------------------------------------------------------------------------------------
 
-// --------------------------------------------------- Controllers -----------------------------------------------------
-import {
-	dbGetLinks,
-	dbCreateLink,
-	dbUpdateLink,
-	dbDeleteLink,
-} from './link.controllers';
-// ---------------------------------------------------------------------------------------------------------------------
+const getLinksInDB = async (): Promise<ILink[]> => {
+	try {
+		await connectToDB();
 
-// ------------------------------------------------------ Utils --------------------------------------------------------
-import { verifyToken } from '../utils/auth';
-// ---------------------------------------------------------------------------------------------------------------------
+		return await Link.find({});
+	} catch (error) {
+		console.error(error);
 
-export async function getLinks(_: Request, res: Response) {
-	const dbLinks = await dbGetLinks();
-
-	if (!dbLinks.success) {
-		return res.status(500).json({ message: dbLinks.message });
+		throw new Error('Unable to get links');
 	}
+};
 
-	return res.status(200).json(dbLinks.links);
-}
+const createLinkInDB = async (
+	name: string,
+	icon: string,
+	color: string,
+	link: string,
+): Promise<ILink | null> => {
+	try {
+		await connectToDB();
 
-export async function createLink(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { name, icon, color, link } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to create a link.',
+		await Link.create({
+			name,
+			icon,
+			color,
+			link,
 		});
-	}
 
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Invalid authorization token.',
+		return await Link.findOne({
+			name,
+			icon,
+			color,
+			link,
 		});
-	}
+	} catch (error) {
+		console.error(error);
 
-	if (!name || !icon || !color || !link) {
-		return res.status(400).json({
-			message: 'One or multiple parameters is missing in request body.',
+		throw new Error('Unable to create a new link');
+	}
+};
+
+const updateLinkInDB = async (
+	id: string,
+	name: string,
+	icon: string,
+	color: string,
+	link: string,
+): Promise<ILink | null> => {
+	try {
+		await connectToDB();
+
+		await Link.updateOne(
+			{
+				_id: id,
+			},
+			{
+				name,
+				icon,
+				color,
+				link,
+			},
+		);
+
+		return await Link.findById(id);
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to update link');
+	}
+};
+
+const deleteLinkInDB = async (id: string): Promise<void> => {
+	try {
+		await connectToDB();
+
+		await Link.deleteOne({
+			_id: id,
 		});
+
+		return;
+	} catch (error) {
+		console.error(error);
+
+		throw new Error('Unable to delete link');
 	}
+};
 
-	const createdLink = await dbCreateLink(name, icon, color, link);
-
-	if (!createdLink.success) {
-		return res.status(500).json({ message: createdLink.message });
-	}
-
-	return res.status(200).json(createdLink.link);
-}
-
-export async function updateLink(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { name, icon, color, link } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to update a link.',
-		});
-	}
-
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Invalid authorization token.',
-		});
-	}
-
-	if (!name || !icon || !color || !link) {
-		return res.status(400).json({
-			message: 'One or multiple parameters is missing in request body.',
-		});
-	}
-
-	const updatedLink = await dbUpdateLink(name, icon, color, link);
-
-	if (!updatedLink.success) {
-		return res.status(500).json({ message: updatedLink.message });
-	}
-
-	return res.status(200).json(updatedLink.link);
-}
-
-export async function deleteLink(req: Request, res: Response) {
-	const token = req.headers.authorization;
-	const { id } = req.body;
-
-	if (!token) {
-		return res.status(401).json({
-			message: 'A valid token is required to delete a link.',
-		});
-	}
-
-	if (!(await verifyToken(token))) {
-		return res.status(404).json({
-			message: 'Invalid authorization token.',
-		});
-	}
-
-	if (!id) {
-		return res.status(400).json({
-			message: 'One parameter is missing in request body.',
-		});
-	}
-
-	const deletedLink = await dbDeleteLink(id);
-
-	if (!deletedLink.success) {
-		return res.status(500).json({ message: deletedLink.message });
-	}
-
-	return res.status(200).end();
-}
+export { getLinksInDB, createLinkInDB, updateLinkInDB, deleteLinkInDB };

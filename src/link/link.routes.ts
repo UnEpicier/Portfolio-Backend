@@ -7,25 +7,22 @@ import { Router } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Services -------------------------------------------------------
-import { getLinks, createLink, updateLink, deleteLink } from './link.services';
+import {
+	getLinks,
+	createLink,
+	updateLink,
+	deleteLink,
+} from './link.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
 
-router.get('/links', async (req, res) => {
-	await getLinks(req, res);
-});
+router.get('/links', getLinks);
 
-router.post('/link', async (req, res) => {
-	await createLink(req, res);
-});
+router.post('/link', createLink);
 
-router.put('/link', async (req, res) => {
-	await updateLink(req, res);
-});
+router.put('/link/:id', updateLink);
 
-router.delete('/link', async (req, res) => {
-	await deleteLink(req, res);
-});
+router.delete('/link/:id', deleteLink);
 
 export default router;

@@ -53,7 +53,7 @@ describe('II. Create Link', () => {
 			.post('/link')
 			.set('Authorization', 'notAGoodToken');
 
-		expect(response.statusCode).toBe(404);
+		expect(response.statusCode).toBe(401);
 	});
 
 	it('2.03 POST    - Missing body fields', async () => {
@@ -61,7 +61,7 @@ describe('II. Create Link', () => {
 			.post('/link')
 			.set('Authorization', token);
 
-		expect(response.statusCode).toBe(400);
+		expect(response.statusCode).toBe(404);
 	});
 
 	it('2.04 POST    - Create link', async () => {
@@ -75,82 +75,71 @@ describe('II. Create Link', () => {
 				link: 'https://www.google.fr/',
 			});
 
-		expect(response.statusCode).toBe(200);
-
 		linkId = response.body._id;
+
+		expect(response.body.name).toBe('TestLink');
 	});
 });
 
 // --------------------------------------------------- Update link -----------------------------------------------------
 describe('III. Update Link', () => {
 	it('3.01 PUT     - Any token', async () => {
-		const response = await request(baseUrl).put('/link');
+		const response = await request(baseUrl).put(`/link/${linkId}`);
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('3.02 PUT     - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put(`/link/${linkId}`)
 			.set('Authorization', 'notAGoodToken');
 
-		expect(response.statusCode).toBe(404);
+		expect(response.statusCode).toBe(401);
 	});
 
 	it('3.03 PUT     - Missing body fields', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put(`/link/${linkId}`)
 			.set('Authorization', token);
 
-		expect(response.statusCode).toBe(400);
+		expect(response.statusCode).toBe(404);
 	});
 
 	it('3.04 PUT     - Update link', async () => {
 		const response = await request(baseUrl)
-			.put('/link')
+			.put(`/link/${linkId}`)
 			.set('Authorization', token)
 			.send({
-				name: 'TestLink1',
+				name: 'Test Link',
 				icon: 'testOutline',
 				color: '#ffffff',
 				link: 'https://www.google.fr/',
 			});
 
-		expect(response.statusCode).toBe(200);
+		expect(response.body.name).toBe('Test Link');
 	});
 });
 
 // --------------------------------------------------- Delete link -----------------------------------------------------
 describe('IV. Delete Link', () => {
 	it('4.01 DELETE     - Any token', async () => {
-		const response = await request(baseUrl).delete('/link');
+		const response = await request(baseUrl).delete(`/link/${linkId}`);
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('4.02 DELETE     - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.delete('/link')
+			.delete(`/link/${linkId}`)
 			.set('Authorization', 'notAGoodToken');
 
-		expect(response.statusCode).toBe(404);
-	});
-
-	it('4.03 DELETE     - Missing body fields', async () => {
-		const response = await request(baseUrl)
-			.delete('/link')
-			.set('Authorization', token);
-
-		expect(response.statusCode).toBe(400);
+		expect(response.statusCode).toBe(401);
 	});
 
 	it('4.04 DELETE     - Delete link', async () => {
 		const response = await request(baseUrl)
-			.delete('/link')
-			.set('Authorization', token)
-			.send({
-				id: linkId,
-			});
+			.delete(`/link/${linkId}`)
+			.set('Authorization', token);
 
 		expect(response.statusCode).toBe(200);
 	});
