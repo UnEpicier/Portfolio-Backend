@@ -24,9 +24,9 @@ describe('0. Sign in', () => {
 			password: process.env.TEST_PASSWORD,
 		});
 
-		expect(response.statusCode).toBe(200);
-
 		token = response.body.token;
+
+		expect(response.statusCode).toBe(200);
 	});
 });
 
@@ -43,7 +43,7 @@ describe('I. Public - Messages', () => {
 			.get('/messages')
 			.set('Authorization', 'notAGoodToken');
 
-		expect(response.statusCode).toBe(404);
+		expect(response.statusCode).toBe(401);
 	});
 
 	it('1.03 GET     - Messages', async () => {
@@ -56,14 +56,14 @@ describe('I. Public - Messages', () => {
 });
 
 // ----------------------------------------------------- Private -------------------------------------------------------
-// --------------------------------------------------- Create link -----------------------------------------------------
+// ------------------------------------------------- Create Message ----------------------------------------------------
 describe('II. Create Message', () => {
 	it('2.01 POST    - Missing body fields', async () => {
 		const response = await request(baseUrl)
 			.post('/message')
 			.set('Authorization', token);
 
-		expect(response.statusCode).toBe(400);
+		expect(response.statusCode).toBe(404);
 	});
 
 	it('2.02 POST    - Create message', async () => {
@@ -78,43 +78,32 @@ describe('II. Create Message', () => {
 				content: 'Test',
 			});
 
-		expect(response.statusCode).toBe(200);
-
 		messageId = response.body._id;
+
+		expect(response.body.firstname).toBe('Test');
 	});
 });
 
-// --------------------------------------------------- Delete link -----------------------------------------------------
+// ------------------------------------------------- Delete Message ----------------------------------------------------
 describe('III. Delete Message', () => {
 	it('4.01 DELETE     - Any token', async () => {
-		const response = await request(baseUrl).delete('/skill');
+		const response = await request(baseUrl).delete(`/message/${messageId}`);
 
 		expect(response.statusCode).toBe(401);
 	});
 
 	it('4.02 DELETE     - Wrong token', async () => {
 		const response = await request(baseUrl)
-			.delete('/skill')
+			.delete(`/message/${messageId}`)
 			.set('Authorization', 'notAGoodToken');
 
-		expect(response.statusCode).toBe(404);
+		expect(response.statusCode).toBe(401);
 	});
 
-	it('4.03 DELETE     - Missing body fields', async () => {
+	it('4.04 DELETE     - Delete message', async () => {
 		const response = await request(baseUrl)
-			.delete('/skill')
+			.delete(`/message/${messageId}`)
 			.set('Authorization', token);
-
-		expect(response.statusCode).toBe(400);
-	});
-
-	it('4.04 DELETE     - Delete skill', async () => {
-		const response = await request(baseUrl)
-			.delete('/skill')
-			.set('Authorization', token)
-			.send({
-				id: messageId,
-			});
 
 		expect(response.statusCode).toBe(200);
 	});

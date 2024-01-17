@@ -90,7 +90,7 @@ const deleteLinkInDB = async (id: string): Promise<void> => {
 	} catch (error) {
 		console.error(error);
 
-		throw new Error('Unable to delete link');
+		throw new Error('Unable to delete the link');
 	}
 };
 

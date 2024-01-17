@@ -7,21 +7,19 @@ import { Router } from 'express';
 // ---------------------------------------------------------------------------------------------------------------------
 
 // ---------------------------------------------------- Services -------------------------------------------------------
-import { getMessages, postMessage, deleteMessage } from './message.services';
+import {
+	getMessages,
+	createMessage,
+	deleteMessage,
+} from './message.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
 
-router.get('/messages', async (req, res) => {
-	await getMessages(req, res);
-});
+router.get('/messages', getMessages);
 
-router.post('/message', async (req, res) => {
-	await postMessage(req, res);
-});
+router.post('/message', createMessage);
 
-router.delete('/message', async (req, res) => {
-	await deleteMessage(req, res);
-});
+router.delete('/message/:id', deleteMessage);
 
 export default router;

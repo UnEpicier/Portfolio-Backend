@@ -34,9 +34,9 @@ describe('I.I Sign in', () => {
 			password: process.env.TEST_PASSWORD,
 		});
 
-		expect(response.statusCode).toBe(200);
-
 		token = response.body.token;
+
+		expect(response.statusCode).toBe(200);
 	});
 });
 

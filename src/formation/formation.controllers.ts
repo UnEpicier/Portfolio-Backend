@@ -136,8 +136,6 @@ const updateFormation = async (req: Request, res: Response) => {
 			parsedContent,
 		);
 
-		console.log(formation);
-
 		return res.status(200).json(formation);
 	} catch (error) {
 		return res.status(500).json({
