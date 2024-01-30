@@ -12,25 +12,17 @@ import {
 	createSkill,
 	updateSkill,
 	deleteSkill,
-} from './skill.services';
+} from './skill.controllers';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const router = Router();
 
-router.get('/skills', async (req, res) => {
-	await getSkills(req, res);
-});
+router.get('/skills', getSkills);
 
-router.post('/skill', async (req, res) => {
-	await createSkill(req, res);
-});
+router.post('/skill', createSkill);
 
-router.put('/skill', async (req, res) => {
-	await updateSkill(req, res);
-});
+router.put('/skill', updateSkill);
 
-router.delete('/skill', async (req, res) => {
-	await deleteSkill(req, res);
-});
+router.delete('/skill', deleteSkill);
 
 export default router;
