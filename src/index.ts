@@ -36,7 +36,12 @@ import blog from './blog/blog.routes';
 // ---------------------------------------------------------------------------------------------------------------------
 
 const app = express();
-app.use(cors());
+app.use(
+	cors({
+		origin: ['https://alexisvasseur.fr', 'http://localhost:3000'],
+		optionsSuccessStatus: 200,
+	}),
+);
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(
 	bodyParser.urlencoded({
