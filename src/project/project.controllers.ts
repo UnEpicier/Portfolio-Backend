@@ -67,31 +67,7 @@ export async function dbRefreshProjects() {
 			});
 		});
 
-		return {
-			success: true,
-			projects: data
-				.map((repo) => {
-					return {
-						ownerName: repo.owner.login,
-						ownerImage: repo.owner.avatar_url,
-						ownerUrl: repo.owner.url,
-						name: repo.name,
-						description: repo.description ?? '',
-						stars: repo.stargazers_count,
-						forks: repo.forks_count,
-						topics: repo.topics ?? [],
-						license: repo.license?.name,
-						url: repo.html_url,
-						createdAt: repo.created_at ?? new Date().toISOString(),
-						updatedAt: repo.updated_at ?? new Date().toISOString(),
-					};
-				})
-				.sort(
-					(a, b) =>
-						new Date(b.updatedAt).getTime() -
-						new Date(a.updatedAt).getTime(),
-				),
-		};
+		return await dbGetProjects();
 	} catch (error) {
 		console.error(error);
 		return {
